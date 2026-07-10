@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OFIN Study Hub — Corporate Finance</title>
-<!-- Tích hợp MathJax để render LaTeX -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <style>
 :root{
   --ink:#1b2430;
@@ -121,13 +118,28 @@ details.solution summary::marker{color:var(--gold);}
   cursor:pointer; font-family:'Source Serif 4',serif; font-size:.92rem;
 }
 .quiz button.opt:hover{border-color:var(--ledger);}
-.quiz button.opt.correct{background:#d9ecdf; border-color:var(--ledger);}
+.quiz button.opt.correct{background:#d9ecd f; border-color:var(--ledger); background:#dcefe1;}
 .quiz button.opt.wrong{background:#f6dcd9; border-color:var(--red-flag);}
 .quiz .fb{margin-top:8px; font-size:.88rem; display:none;}
+
+.calc-box{
+  background:var(--ledger-deep); color:#eef3ef; padding:18px 20px; border-radius:3px; margin:16px 0;
+}
+.calc-box h4{margin:0 0 10px; color:#fff; font-size:1rem;}
+.calc-row{display:flex; gap:10px; margin-bottom:8px; flex-wrap:wrap; align-items:center;}
+.calc-row label{font-family:var(--mono); font-size:.75rem; min-width:150px;}
+.calc-row input{background:#0d4d40; border:1px solid #2a6f5e; color:#fff; padding:6px 8px; border-radius:2px; width:120px; font-family:var(--mono);}
+.calc-row input::placeholder{color:#9fc4b7;}
+.calc-out{font-family:var(--mono); background:#0a3f34; padding:10px 12px; border-radius:2px; margin-top:8px; font-size:1rem;}
+.calc-box button.run{background:var(--gold); color:#28211a; border:none; padding:8px 16px; border-radius:2px; cursor:pointer; font-weight:700; font-family:'Space Grotesk',sans-serif;}
 
 .footer-nav{display:flex; justify-content:space-between; margin-top:36px; border-top:1px solid var(--line); padding-top:16px;}
 .footer-nav button{background:var(--ledger); color:#fff; border:none; padding:10px 18px; border-radius:2px; cursor:pointer; font-family:var(--mono); font-size:.75rem;}
 .footer-nav button:disabled{opacity:.3; cursor:default;}
+
+.reading{font-family:var(--mono); font-size:.75rem; color:#888; margin-top:6px;}
+
+ul{padding-left:22px;} li{margin-bottom:4px;}
 
 .progress-bar{height:3px; background:rgba(255,255,255,.15); margin-top:12px; border-radius:2px; overflow:hidden;}
 .progress-fill{height:100%; background:var(--gold); width:11.1%; transition:width .3s;}
@@ -152,7 +164,9 @@ details.solution summary::marker{color:var(--gold);}
 
 <script>
 /* ============================================================
-   DATA - Đã được cập nhật toàn bộ kiến thức, công thức LaTeX và fix dấu tiếng Việt
+   DATA — mỗi lecture là 1 object. Nội dung được viết lại đầy đủ,
+   bám sát outline gốc trong slide (OFIN2026, Berk & DeMarzo),
+   kèm giải thích bản chất tiếng Việt + bẫy thi + quiz tương tác.
    ============================================================ */
 const LECTURES = [
 {
@@ -162,108 +176,121 @@ const LECTURES = [
   blocks:[
     {
       h_en:"What is Finance? / Main Areas", h_vi:"Tài chính là gì? Các mảng chính",
-      en:`Finance deals with how individuals, businesses, and institutions allocate scarce resources over time, under uncertainty[cite: 1]. Three main areas:
-      <ul><li><b>Capital Markets & Capital Market Theory</b> — pricing of risky assets, interest rate structure[cite: 1].</li>
-      <li><b>Financial Management (Corporate Finance)</b> — investment decisions & financing decisions of a firm[cite: 1].</li>
-      <li><b>Investments</b> — management of individual/institutional portfolios; risk-return trade-off[cite: 1].</li></ul>
-      Value of any financial asset = <b>present value of its expected cash flows</b>[cite: 1].`,
-      vi:`Bản chất: tài chính là khoa học về việc "định giá thời gian và rủi ro của tiền"[cite: 1]. Ba mảng trên khác nhau ở góc nhìn:
-      <ul><li><b>Capital Markets</b>: nhìn từ góc độ thị trường — giá tài sản rủi ro được hình thành thế nào[cite: 1].</li>
-      <li><b>Corporate Finance</b>: nhìn từ góc độ doanh nghiệp — nên đầu tư vào đâu (investment decision), lấy tiền từ đâu (financing decision)[cite: 1].</li>
-      <li><b>Investments</b>: nhìn từ góc độ nhà đầu tư cá nhân/tổ chức — xây danh mục, đánh đổi rủi ro–lợi nhuận[cite: 1].</li></ul>
-      Nguyên lý xuyên suốt cả môn: <b>giá trị = PV của dòng tiền kỳ vọng</b>[cite: 1].`
+      en:`Finance deals with how individuals, businesses, and institutions allocate scarce resources over time, under uncertainty. Three main areas:
+      <ul><li><b>Capital Markets & Capital Market Theory</b> — pricing of risky assets, interest rate structure.</li>
+      <li><b>Financial Management (Corporate Finance)</b> — investment decisions & financing decisions of a firm.</li>
+      <li><b>Investments</b> — management of individual/institutional portfolios; risk-return trade-off.</li></ul>
+      Value of any financial asset = <b>present value of its expected cash flows</b>.`,
+      vi:`Bản chất: tài chính là khoa học về việc "định giá thời gian và rủi ro của tiền". Ba mảng trên khác nhau ở góc nhìn:
+      <ul><li><b>Capital Markets</b>: nhìn từ góc độ thị trường — giá tài sản rủi ro được hình thành thế nào.</li>
+      <li><b>Corporate Finance</b>: nhìn từ góc độ doanh nghiệp — nên đầu tư vào đâu (investment decision), lấy tiền từ đâu (financing decision).</li>
+      <li><b>Investments</b>: nhìn từ góc độ nhà đầu tư cá nhân/tổ chức — xây danh mục, đánh đổi rủi ro–lợi nhuận.</li></ul>
+      Nguyên lý xuyên suốt cả môn: <b>giá trị = PV của dòng tiền kỳ vọng</b>. Mọi công cụ sau này (NPV, định giá bond, stock, CAPM…) chỉ là biến thể của công thức này.`
     },
     {
       h_en:"The Valuation Principle & Competitive Markets", h_vi:"Nguyên lý Định giá & Thị trường Cạnh tranh",
-      en:`<b>Valuation Principle:</b> the value of an asset is determined by its competitive market price[cite: 1]. Compare costs & benefits using market prices — not personal taste[cite: 1].
-      <br><b>Competitive market:</b> a market where goods can be bought and sold at the same price[cite: 1].`,
-      vi:`Ý nghĩa cốt lõi: khi có giá thị trường cạnh tranh, bạn <b>không cần quan tâm bạn thích hay không thích</b> tài sản đó — chỉ cần so giá trị thị trường của lợi ích và chi phí[cite: 1]. Đây là lý do vì sao corporate finance "khách quan hoá" quyết định[cite: 1].`
+      en:`<b>Valuation Principle:</b> the value of an asset is determined by its competitive market price. Compare costs & benefits using market prices — not personal taste.
+      <br><b>Competitive market:</b> a market where goods can be bought and sold at the same price.`,
+      vi:`Ý nghĩa cốt lõi: khi có giá thị trường cạnh tranh, bạn <b>không cần quan tâm bạn thích hay không thích</b> tài sản đó — chỉ cần so giá trị thị trường của lợi ích và chi phí. Đây là lý do vì sao corporate finance "khách quan hoá" quyết định: sếp thích hay ghét dự án không quan trọng, quan trọng là NPV dương hay âm.
+      Bẫy hay gặp: đề cho thêm ý kiến cá nhân ("bạn nghĩ giá vàng hiện tại có hợp lý không?") — câu trả lời đúng luôn là: <i>không liên quan</i>, vì thị trường cạnh tranh đã cho ta giá khách quan để giao dịch.`
     },
     {
       h_en:"Time Value of Money — Core Formulas", h_vi:"Giá trị thời gian của tiền — Công thức cốt lõi",
-      en:`Two reasons $1 today $\\neq$ $1 in the future: (1) time value / opportunity cost (interest), (2) uncertainty[cite: 1].`,
-      vi:`Hai lý do tiền có giá trị theo thời gian: chi phí cơ hội (lãi suất) và sự không chắc chắn trong tương lai[cite: 1].`,
-      formula:`$$FV_{t+1} = PV_t \\times (1+r)$$
-$$PV_t = \\frac{FV_{t+1}}{1+r}$$
-Discount Factor = $\\frac{1}{(1+r)^n}$`
+      en:`Two reasons $1 today ≠ $1 in the future: (1) time value / opportunity cost (interest), (2) uncertainty.`,
+      vi:`Hai lý do tiền có giá trị theo thời gian: bạn có thể đem tiền hôm nay đi sinh lời (chi phí cơ hội), và tiền tương lai luôn có rủi ro không chắc chắn. Slide dùng ẩn dụ "tỷ giá hối đoái xuyên thời gian": $1 hôm nay và $1 năm sau là hai "đồng tiền" khác nhau, tỷ giá quy đổi giữa chúng chính là lãi suất r.`,
+      formula:`Future Value:   FV(t+1) = PV(t) × (1+r)^[(t+1)−t]
+Present Value:  PV(t)   = FV(t+1) / (1+r)^[(t+1)−t]
+
+Interest Rate Factor = (1+r)^n
+Discount Factor       = (1+r)^(−n)`
     },
     {
       h_en:"NPV Decision Rule", h_vi:"Quy tắc quyết định NPV",
-      en:`NPV expresses the value of an investment decision as an amount of cash received today[cite: 1]. <b>Rule:</b> among mutually exclusive alternatives, take the one with the highest NPV[cite: 1].`,
-      vi:`NPV chính là "quy tất cả dòng tiền về một mốc thời gian (hiện tại) rồi cộng lại"[cite: 1]. Chọn NPV cao nhất = tối đa hoá của cải[cite: 1].`,
-      formula:`$$NPV = PV(\\text{Benefits}) - PV(\\text{Costs})$$`
+      en:`NPV = PV(Benefits) − PV(Costs) = PV(All cash flows). <b>Rule:</b> among mutually exclusive alternatives, take the one with the highest NPV — equivalent to receiving that NPV in cash today.`,
+      vi:`NPV chính là "quy tất cả dòng tiền về một mốc thời gian (hiện tại) rồi cộng lại". Vì đã quy về cùng một đơn vị đo (tiền hôm nay), ta có thể so sánh trực tiếp các phương án khác nhau. Chọn NPV cao nhất = tối đa hoá của cải.`,
+      formula:`NPV = PV(Benefits) − PV(Costs)
+Quy tắc: chọn phương án có NPV cao nhất (nếu NPV<0 với mọi phương án ⇒ không đầu tư)`
     },
     {
       h_en:"Inflation: Nominal vs Real Interest Rates", h_vi:"Lạm phát: lãi suất danh nghĩa vs thực",
-      en:`$(1+i_n) = (1+i_r)(1+e)$ — Fisher equation[cite: 1]. Approximation: $i_n \\approx i_r + e$[cite: 1].
-      <b>Golden rule:</b> discount real cash flows with real rate; discount nominal cash flows with nominal rate — never mix[cite: 1].`,
-      vi:`Đây là bẫy thi phổ biến nhất: <b>không được trộn</b> dòng tiền thực (real) với lãi suất danh nghĩa (nominal), và ngược lại[cite: 1].`,
-      formula:`$$(1 + i_{nom}) = (1 + i_{real}) \\times (1 + e)$$
-$$i_{real} = \\frac{1 + i_{nom}}{1 + e} - 1$$`
+      en:`(1+i_n) = (1+i_r)(1+e) — Fisher equation. Approximation: i_n ≈ i_r + e.
+      <b>Golden rule:</b> discount real cash flows with real rate; discount nominal cash flows with nominal rate — never mix.`,
+      vi:`Đây là bẫy thi phổ biến nhất của chương này: <b>không được trộn</b> dòng tiền thực (real, đã loại lạm phát) với lãi suất danh nghĩa (nominal, chưa loại lạm phát), và ngược lại. Có 2 cách làm đúng cho cùng 1 bài — chiết khấu dòng tiền thực bằng lãi suất thực, hoặc quy dòng tiền thực thành danh nghĩa (nhân với (1+lạm phát)^t) rồi chiết khấu bằng lãi suất danh nghĩa. Hai cách phải cho cùng kết quả NPV.`,
+      formula:`(1 + i_nominal) = (1 + i_real) × (1 + inflation)
+i_real = (1+i_nom)/(1+e) − 1
+Xấp xỉ nhanh: i_nom ≈ i_real + e  (chỉ dùng khi lạm phát nhỏ)`
     },
     {
       h_en:"Arbitrage & the Law of One Price", h_vi:"Kinh doanh chênh lệch giá & Luật một giá",
-      en:`Law of One Price: equivalent investment opportunities trading in different competitive markets must trade at the same price[cite: 1]. If PV of a security's cash flows $\\neq$ its market price $\\Rightarrow$ arbitrage opportunity exists[cite: 1].`,
-      vi:`Nếu giá thị trường $\\neq$ PV lý thuyết, sẽ có cơ hội kinh doanh chênh lệch giá (arbitrage)[cite: 1]. Mua tài sản định giá thấp, bán tài sản định giá cao để hưởng lợi nhuận phi rủi ro[cite: 1].`
+      en:`Law of One Price: equivalent investment opportunities trading in different competitive markets must trade at the same price. If PV of a security's cash flows ≠ its market price ⇒ arbitrage opportunity exists.`,
+      vi:`Cách nhận diện: tính PV "công bằng" (no-arbitrage price) của một tài sản dựa trên lãi suất phi rủi ro, rồi so với giá thị trường thực tế.
+      <ul><li>Nếu giá thị trường &lt; PV lý thuyết → tài sản đang <b>bị định giá thấp</b> → <b>mua</b> tài sản, đi vay ở lãi suất phi rủi ro để tài trợ → lời chênh lệch ngay hôm nay, dòng tiền ròng năm sau = 0.</li>
+      <li>Nếu giá thị trường &gt; PV lý thuyết → tài sản <b>bị định giá cao</b> → <b>bán</b> (hoặc bán khống) tài sản, đem tiền đi cho vay ở lãi suất phi rủi ro.</li></ul>
+      Luôn trình bày bằng bảng dòng tiền Hôm nay / Năm sau để giám khảo thấy rõ dòng tiền ròng hôm nay dương và dòng tiền ròng tương lai = 0 (đây chính là định nghĩa của arbitrage: lời chắc chắn, không rủi ro, không cần vốn tự có).`
     }
   ],
   examples:[
-    {title:"PV & Quyết định trả trước hay trả sau",
-     q:`Công ty cần mua máy in 3D giá $\\$2,500$ nếu trả ngay. Lựa chọn trả chậm: trả $\\$2,650$ sau 1 năm. Lãi suất phi rủi ro $4\\%$/năm. Nên chọn phương án nào?[cite: 1]`,
-     sol:`$$PV = \\frac{\\$2,650}{1.04} = \\$2,548.08$$
-     So với giá trả ngay $\\$2,500$ $\\rightarrow$ $PV$ của khoản trả chậm $>$ giá trả ngay[cite: 1].
-     Vì đây là chi phí (outflow), ta chọn phương án có PV thấp hơn $\\Rightarrow$ <b>trả tiền mặt ngay hôm nay</b>, tiết kiệm được $\\$48.08$[cite: 1].`},
-    {title:"So sánh phương án bán doanh nghiệp",
-     q:`Bán ngay $\\$200,000$. Hoặc đầu tư $\\$50,000$ hôm nay, thu lợi nhuận $\\$90,000$ và bán $\\$200,000$ sau 1 năm. Lãi suất $6\\%$. Chọn phương án nào?[cite: 1]`,
-     sol:`Bán ngay: $NPV = \\$200,000$[cite: 1].<br>
-     Đầu tư thêm: $CF_0 = -\\$50,000$; $CF_1 = \\$290,000$[cite: 1].<br>
-     $$PV(CF_1) = \\frac{\\$290,000}{1.06} = \\$273,584.91$$<br>
-     $NPV = -\\$50,000 + \\$273,584.91 = \\$223,584.91$[cite: 1].<br>
-     $\\Rightarrow$ Chọn <b>phương án đầu tư thêm</b> vì NPV cao hơn[cite: 1].`}
+    {title:"Ví dụ: PV & quyết định trả trước hay trả sau",
+     q:`Công ty cần mua máy in 3D giá $2,500 nếu trả ngay. Nhà cung cấp cho lựa chọn: trả $2,650 sau đúng 1 năm. Lãi suất phi rủi ro 4%/năm. Nên chọn phương án nào?`,
+     sol:`PV(khoản trả sau) = 2,650 / 1.04 = $2,548.08.
+     So với giá trả ngay $2,500 → PV của khoản trả chậm ($2,548.08) > giá trả ngay ($2,500).
+     Đây là một khoản <i>chi phí</i> (cash outflow), nên ta chọn phương án có PV chi phí <b>thấp hơn</b> ⇒ chọn <b>trả tiền mặt ngay hôm nay</b>, tiết kiệm $48.08 tính theo giá trị hiện tại.`},
+    {title:"Ví dụ: So sánh 3 phương án bán doanh nghiệp",
+     q:`Bạn có thể bán công ty ngay với giá $200,000. Lãi suất 6%. Phương án B: đầu tư $30,000 hôm nay, nâng cấp thiết bị, vận hành thêm 1 năm, thu lợi nhuận ròng $50,000 rồi bán với giá $200,000. Phương án C: thuê quản lý, đầu tư $50,000, lợi nhuận ròng $90,000, sau đó bán $200,000. Chọn phương án nào?`,
+     sol:`A (bán ngay): NPV = $200,000.
+     B: CF0=−30,000; CF1=50,000+200,000=250,000 → PV(CF1)=250,000/1.06=235,849.06 → NPV=205,849.06.
+     C: CF0=−50,000; CF1=90,000+200,000=290,000 → PV(CF1)=290,000/1.06=273,584.91 → NPV=223,584.91.
+     ⇒ Chọn <b>phương án C</b> vì NPV cao nhất ($223,584.91).`}
   ],
   traps:[
-    "Nhầm lẫn giữa dòng tiền danh nghĩa (Nominal) và lãi suất thực (Real). Luôn dùng tỷ lệ tương ứng[cite: 1].",
-    "Với bài toán chi phí, phương án tốt nhất là phương án có PV chi phí thấp nhất[cite: 1]."
+    "Nhầm giữa lãi suất danh nghĩa và thực khi chiết khấu — luôn kiểm tra đơn vị dòng tiền (real hay nominal) khớp với lãi suất dùng để chiết khấu.",
+    "Quên rằng NPV luôn phải quy về <b>cùng một mốc thời gian</b> trước khi so sánh — không được cộng trực tiếp các số tiền ở các thời điểm khác nhau.",
+    "Với bài toán chi phí (outflow), phương án tốt nhất là phương án có <b>PV chi phí thấp nhất</b>, không phải cao nhất — dễ nhầm chiều so sánh."
   ],
-  quiz:{q:"Một dự án yêu cầu bỏ ra $\\$12.00$ triệu hôm nay, trả $\\$5.50$ triệu vào năm 1, và thu về $\\$25.00$ triệu vào năm 1. Lãi suất phi rủi ro $5\\%$. NPV là bao nhiêu?[cite: 1]",
-        opts:["$1.57 triệu","$6.57 triệu","$7.50 triệu","$0 triệu"], correct:1,
-        fb:`Dòng tiền năm 1: $25.00 - 5.50 = 19.50$[cite: 1]. $PV = \\frac{19.50}{1.05} = 18.57$[cite: 1]. $NPV = -12.00 + 18.57 = 6.57$ triệu[cite: 1].`}
+  quiz:{q:"Một dự án yêu cầu bỏ ra $100,000 hôm nay, thu về $105,000 sau 1 năm. Lãi suất phi rủi ro là 7%. NPV của dự án là bao nhiêu (làm tròn)?",
+        opts:["≈ −$1,869 (không nên đầu tư)","≈ +$1,869 (nên đầu tư)","= $5,000 (nên đầu tư)","= $0 (trung lập)"], correct:0,
+        fb:"PV(105,000)=105,000/1.07=98,130.84. NPV=98,130.84−100,000=−1,869.16 → NPV âm nên KHÔNG đầu tư, dù lợi nhuận danh nghĩa dương ($5,000) — đây chính là lý do phải chiết khấu về hiện tại."}
 },
 {
   id:2, code:"L02", enTitle:"Time, Money and Interest Rates",
   viSub:"Giá trị thời gian của tiền (nâng cao) & Cấu trúc lãi suất",
   reading:"Reading: CF-B&D, Ch. 4 & 5",
   blocks:[
-    {h_en:"Perpetuities & Annuities", h_vi:"Dòng tiền vĩnh viễn & Dòng tiền đều",
-     en:`Perpetuity: constant cash flow C forever. Annuity: constant cash flow C for N periods[cite: 1].`,
-     vi:`PV của perpetuity định giá tại thời điểm <b>ngay trước</b> dòng tiền đầu tiên[cite: 1].`,
-     formula:`$$PV_{\\text{Perpetuity}} = \\frac{C}{r}$$
-$$PV_{\\text{Growing Perpetuity}} = \\frac{C}{r - g}$$
-$$PV_{\\text{Annuity}} = C \\times \\left[ \\frac{1 - (1+r)^{-N}}{r} \\right]$$
-$$PV_{\\text{Growing Annuity}} = \\frac{C}{r - g} \\times \\left[ 1 - \\left( \\frac{1+g}{1+r} \\right)^N \\right]$$`},
-    {h_en:"Effective Annual Rate (EAR) & Continuous Compounding", h_vi:"EAR & Ghép lãi liên tục",
-     en:`When interest compounds more than once per year, convert the APR to an effective rate (EAR)[cite: 1]. Continuous compounding uses Euler's number $e$[cite: 1].`,
-     vi:`Lãi suất hiệu dụng (EAR) phản ánh lãi suất thực nhận sau 1 năm. Ghép lãi liên tục dùng hằng số $e$[cite: 1].`,
-     formula:`$$EAR = \\left(1 + \\frac{APR}{k}\\right)^k - 1$$
-$$FV_{\\text{continuous}} = PV \\times e^{rT}$$`}
+    {h_en:"The Timeline & Multi-period Cash Flows", h_vi:"Đường thời gian & Dòng tiền nhiều kỳ",
+     en:`A timeline is the fundamental tool: plot all cash flows (in/out) at the dates they occur, then apply PV/FV formulas period by period.`,
+     vi:`Kỹ năng nền tảng nhất của cả môn: <b>vẽ timeline</b> trước khi tính bất cứ gì. 90% lỗi sai của sinh viên đến từ việc xác định sai mốc thời gian (t=0 hay t=1?), đặc biệt với annuity/perpetuity bắt đầu trễ.`},
+    {h_en:"Perpetuities & Annuities", h_vi:"Dòng tiền vĩnh viễn & Dòng tiền đều có kỳ hạn",
+     en:`Perpetuity: constant cash flow C forever, starting one period from now. Annuity: constant cash flow C for N periods. Growing versions replace C with C, C(1+g), C(1+g)^2...`,
+     vi:`Đây là "công cụ vạn năng" để định giá cổ phiếu (Lecture 6) và trái phiếu (Lecture 5) sau này — hãy học thuộc bản chất, không chỉ công thức. PV của perpetuity = "cái giá phải trả hôm nay để nhận dòng tiền C mãi mãi bắt đầu từ năm sau" — vì vậy công thức PV = C/r <b>định giá tại thời điểm ngay trước</b> dòng tiền đầu tiên.`,
+     formula:`Perpetuity:        PV = C / r
+Growing Perpetuity: PV = C / (r − g)      (cần r > g)
+Annuity:            PV = (C/r) × [1 − 1/(1+r)^N]
+Growing Annuity:    PV = [C/(r−g)] × [1 − ((1+g)/(1+r))^N]
+Annuity FV:         FV = PV × (1+r)^N`},
+    {h_en:"Compounding Frequency & Effective Annual Rate (EAR)", h_vi:"Tần suất ghép lãi & Lãi suất hiệu dụng năm (EAR)",
+     en:`When interest compounds more than once per year, convert the quoted (APR) rate to an effective rate matching the cash flow frequency.`,
+     vi:`Bẫy kinh điển: đề cho "lãi suất 12%/năm, ghép lãi hàng tháng" — sinh viên hay lấy 12%/12=1%/tháng rồi coi đó là xong, quên chuyển sang <b>EAR</b> khi cần so sánh với một lãi suất ghép theo tần suất khác. Luôn hỏi: "đơn vị kỳ của dòng tiền là gì?" trước khi chọn r.`,
+     formula:`EAR = (1 + APR/m)^m − 1     (m = số kỳ ghép lãi/năm)
+r_kỳ = (1+EAR)^(1/k) − 1     (quy đổi sang lãi suất theo kỳ k khác)`},
   ],
   examples:[
-    {title:"Định giá một Growing Perpetuity",
-     q:`Quỹ học bổng cần chi $\\$120,000$ mỗi năm mãi mãi. Lợi suất $6\\%$, lạm phát $2.5\\%$. Cần quyên góp bao nhiêu hôm nay?[cite: 1]`,
-     sol:`$$PV = \\frac{C}{r - g} = \\frac{\\$120,000}{0.06 - 0.025} = \\frac{\\$120,000}{0.035} = \\$3,428,571.43$$[cite: 1].`},
-    {title:"Annuity với khoản thanh toán Balloon",
-     q:`Vay $\\$15,000$ trong 5 năm, lãi $8\\%$. Trả đều mỗi năm, nhưng cuối năm 3 trả thêm $\\$4,000$ (balloon). Tính khoản trả đều mới?[cite: 1]`,
-     sol:`PV của Balloon: $PV_B = \\frac{4,000}{1.08^3} = \\$3,175.33$[cite: 1].<br>
-     Phần PV còn lại phải trả bằng Annuity: $15,000 - 3,175.33 = \\$11,824.67$[cite: 1].<br>
-     Tính PMT: $\\$11,824.67 = PMT \\times \\left[ \\frac{1 - 1.08^{-5}}{0.08} \\right] \\Rightarrow PMT = \\$2,961.56$[cite: 1].`}
+    {title:"Ví dụ: Định giá một Growing Perpetuity",
+     q:`Một cổ phiếu ưu đãi trả cổ tức $4 vào cuối năm sau, tăng trưởng đều 3%/năm mãi mãi. Lãi suất chiết khấu 9%. Giá trị hôm nay của cổ phiếu?`,
+     sol:`PV = C/(r−g) = 4/(0.09−0.03) = 4/0.06 = $66.67.
+     Lưu ý: đây là PV tại <b>thời điểm t=0</b>, ngay trước khi nhận $4 đầu tiên vào cuối năm 1 — không cộng thêm $4 vào kết quả.`},
+    {title:"Ví dụ: EAR khi ghép lãi hàng quý",
+     q:`Ngân hàng niêm yết lãi suất 8%/năm, ghép lãi theo quý. EAR là bao nhiêu?`,
+     sol:`EAR = (1+0.08/4)^4 − 1 = (1.02)^4 − 1 = 1.08243 − 1 = 8.243%.
+     Đây là lãi suất "thực" bạn nhận được trong 1 năm, cao hơn 8% niêm yết vì có lãi nhập gốc giữa các quý.`}
   ],
   traps:[
-    "Perpetuity định giá ngay trước dòng tiền đầu tiên[cite: 1].",
-    "Nhầm lẫn APR và EAR. Chỉ dùng EAR hoặc lãi suất theo kỳ để chiết khấu[cite: 1]."
+    "Perpetuity/Annuity định giá tại thời điểm <b>ngay trước</b> dòng tiền đầu tiên — nếu dòng tiền bắt đầu ở năm 3 thay vì năm 1, phải chiết khấu thêm kết quả về đúng t=0.",
+    "Growing perpetuity yêu cầu r > g, nếu không công thức vô nghĩa (giá trị âm hoặc vô cực) — đề thường cài số liệu để kiểm tra sinh viên có nhận ra không.",
+    "APR (lãi suất niêm yết) ≠ EAR (lãi suất hiệu dụng) khi ghép lãi nhiều hơn 1 lần/năm — luôn đọc kỹ đề hỏi APR hay EAR."
   ],
-  quiz:{q:"Trúng số $\\$680$ triệu, trả trong 30 năm, khoản đầu $\\$10.235$ triệu, tăng $5\\%$/năm. Lãi $3\\%$. Dùng công thức nào?[cite: 1]",
-        opts:["Perpetuity","Growing Annuity","Annuity thông thường","Không thể tính do g > r"], correct:1,
-        fb:`Đây là một Growing Annuity do có kỳ hạn 30 năm và tăng trưởng $5\\%$[cite: 1]. $PV = C_1 \\times \\frac{1 - (\\frac{1+g}{1+r})^n}{r-g}$[cite: 1].`}
+  quiz:{q:"Một annuity trả $1,000/năm trong 5 năm, năm đầu tiên nhận vào cuối năm 1, lãi suất 10%. Công thức PV đúng là gì?",
+        opts:["PV = 1000×5","PV = (1000/0.10)×[1−1/(1.10)^5]","PV = 1000×(1.10)^5","PV = 1000/0.10"], correct:1,
+        fb:"Đây chính xác là công thức PV annuity thông thường; growing perpetuity/annuity chỉ áp dụng khi có tăng trưởng g."}
 },
 {
   id:3, code:"L03", enTitle:"Investment Decision Rules",
@@ -271,165 +298,301 @@ $$FV_{\\text{continuous}} = PV \\times e^{rT}$$`}
   reading:"Reading: CF-B&D, Ch. 7",
   blocks:[
     {h_en:"NPV Investment Rule", h_vi:"Quy tắc NPV",
-     en:`NPV Rule: accept a project if $NPV > 0$. NPV directly measures value created[cite: 1].`,
-     vi:`NPV luôn là quy tắc chuẩn nhất để tối đa hoá giá trị doanh nghiệp[cite: 1].`},
+     en:`NPV Rule: accept a project if NPV > 0; among mutually exclusive projects, choose the one with the highest NPV. NPV is the gold standard because it directly measures value created.`,
+     vi:`NPV luôn là quy tắc "đúng nhất" vì nó tương thích trực tiếp với mục tiêu tối đa hoá của cải cổ đông và cộng dồn được (NPV(A+B)=NPV(A)+NPV(B) — tính chất "additivity"). Các quy tắc khác (IRR, Payback, PI) đều có thể dẫn tới sai lầm trong một số tình huống — NPV thì không bao giờ sai.`},
     {h_en:"IRR Investment Rule", h_vi:"Quy tắc IRR (tỷ suất sinh lời nội bộ)",
-     en:`IRR: the discount rate that sets $NPV = 0$[cite: 1]. Pitfalls: multiple IRRs with non-conventional cash flows, cannot compare mutually exclusive projects of different scale[cite: 1].`,
-     vi:`Ba bẫy của IRR: Dòng tiền đổi dấu nhiều lần gây đa nghiệm (Multiple IRRs), không phản ánh quy mô (Scale), giả định tái đầu tư phi thực tế[cite: 1].`,
-     formula:`$$NPV = \\sum \\frac{CF_t}{(1+IRR)^t} = 0$$`},
+     en:`IRR: the discount rate that sets NPV=0. Rule: accept if IRR > cost of capital (r). Pitfalls: multiple IRRs with non-conventional cash flows, cannot compare mutually exclusive projects of different scale, assumes reinvestment at IRR.`,
+     vi:`IRR trả lời câu hỏi "dự án này thực sự sinh lời bao nhiêu %?" — trực quan hơn NPV (là số tiền) nên hay được dùng trong thực tế. Nhưng có 3 bẫy lớn:
+     <ul><li><b>Non-conventional cash flows</b> (đổi dấu nhiều lần, VD: −,+,+,−) → có thể có <b>nhiều IRR</b> hoặc không có IRR nào → quy tắc IRR "vô nghĩa".</li>
+     <li><b>So sánh dự án loại trừ lẫn nhau (mutually exclusive)</b> có quy mô khác nhau: dự án nhỏ có thể IRR cao hơn nhưng NPV thấp hơn dự án lớn → chọn theo IRR sẽ SAI, phải dùng NPV hoặc <i>incremental IRR</i>.</li>
+     <li>IRR ngầm giả định tái đầu tư dòng tiền trung gian ở đúng mức IRR — giả định này thường phi thực tế nếu IRR quá cao.</li></ul>`,
+     formula:`NPV = Σ [CFt / (1+IRR)^t] = 0  → giải tìm IRR
+Quy tắc: Chấp nhận nếu IRR > r (chi phí vốn)`},
+    {h_en:"Payback Rule", h_vi:"Quy tắc thời gian hoàn vốn",
+     en:`Payback period: time until cumulative cash flows recover the initial investment. Rule: accept if payback < a pre-set cutoff. Simple but ignores time value of money and cash flows after cutoff.`,
+     vi:`Đây là quy tắc "thô" nhất — dễ hiểu, dễ tính, nhưng có 2 lỗi nghiêm trọng: (1) không chiết khấu dòng tiền (bỏ qua time value), (2) bỏ hoàn toàn dòng tiền sau điểm hoàn vốn dù có thể rất lớn. Đề thi hay ra bẫy: 2 dự án có payback bằng nhau nhưng NPV khác hẳn nhau vì dòng tiền "đuôi" sau cutoff khác nhau.`},
     {h_en:"Profitability Index (PI)", h_vi:"Chỉ số khả năng sinh lời",
-     en:`PI = PV(future cash flows) / Initial Investment. Useful for capital rationing[cite: 1].`,
-     vi:`PI dùng để tối ưu hoá ngân sách bị giới hạn (capital rationing)[cite: 1].`,
-     formula:`$$PI = \\frac{\\text{PV(Future Cash Flows)}}{\\text{Initial Investment}}$$`}
+     en:`PI = PV(future cash flows)/Initial Investment. Useful for ranking projects under a capital constraint (capital rationing).`,
+     vi:`PI hữu ích nhất khi công ty bị <b>giới hạn vốn</b> (capital rationing) — không đủ tiền làm hết mọi dự án NPV dương. Khi đó xếp hạng dự án theo PI giảm dần, chọn tổ hợp dự án tối đa hoá tổng NPV trong giới hạn ngân sách — chứ không đơn thuần chọn PI cao nhất của từng dự án riêng lẻ.`,
+     formula:`PI = PV(Dòng tiền tương lai) / Đầu tư ban đầu
+      = 1 + NPV/Đầu tư ban đầu`}
   ],
   examples:[
-    {title:"So sánh Mutually Exclusive bằng NPV & IRR",
-     q:`Dự án Alpha: NPV $=\\$22,230$, IRR $=14.47\\%$. Dự án Beta: NPV $=\\$28,145$, IRR $=12.78\\%$. Chọn dự án nào?[cite: 1]`,
-     sol:`Dựa theo NPV, chọn Beta vì nó tạo ra giá trị tuyệt đối cao hơn ($\\$28,145 > \\$22,230$), dù IRR thấp hơn[cite: 1]. IRR không dùng để so sánh các dự án loại trừ lẫn nhau có khác biệt về quy mô hoặc thời gian[cite: 1].`},
-    {title:"Dòng tiền đổi dấu (Non-conventional CF)",
-     q:`Kho kho phân phối Main Street: Đầu tư $\\$12M$, thu $\\$1.8M$/năm trong 20 năm, sau đó tốn $\\$150k$/năm vĩnh viễn bảo trì. Có bao nhiêu IRR?[cite: 1]`,
-     sol:`Dòng tiền đổi dấu 2 lần (Từ Âm $\\rightarrow$ Dương $\\rightarrow$ Âm). Có thể có tối đa 2 IRR (trong bài là $0.61\\%$ và $13.77\\%$)[cite: 1]. Quy tắc IRR hoàn toàn vô hiệu[cite: 1].`}
+    {title:"Ví dụ: Bẫy IRR khi so sánh 2 dự án loại trừ lẫn nhau",
+     q:`Dự án A: CF0=−$10,000; CF1=$14,000. Dự án B: CF0=−$100,000; CF1=$130,000. Chi phí vốn 10%. Chọn dự án nào nếu chỉ được chọn 1?`,
+     sol:`IRR(A)=40% ; NPV(A)=14,000/1.1−10,000=$2,727.
+     IRR(B)=30% ; NPV(B)=130,000/1.1−100,000=$18,182.
+     Dù IRR(A) > IRR(B), NPV(B) >> NPV(A) vì quy mô lớn hơn nhiều. Nếu chỉ được chọn 1 dự án (loại trừ lẫn nhau) → chọn <b>dự án B</b> theo NPV, không theo IRR. Đây chính là bẫy "IRR không phản ánh quy mô".`},
+    {title:"Ví dụ: Non-conventional cash flow — IRR đa nghiệm",
+     q:`Dự án có CF: t0=−$1,600; t1=+$10,000; t2=−$10,000. Tìm IRR.`,
+     sol:`Vì dòng tiền đổi dấu 2 lần (−,+,−), phương trình NPV=0 có thể có <b>2 nghiệm IRR</b> (ví dụ IRR≈25% và IRR≈400%). Trong tình huống này, quy tắc IRR không đáng tin cậy — nên dùng trực tiếp NPV tại chi phí vốn thực tế của công ty để ra quyết định.`}
   ],
   traps:[
-    "Dùng IRR để so sánh dự án loại trừ lẫn nhau là sai lầm phổ biến[cite: 1].",
-    "Không dùng IRR khi dòng tiền có nhiều lần đổi dấu[cite: 1]."
+    "Không dùng IRR để so sánh các dự án loại trừ lẫn nhau có quy mô đầu tư khác nhau — dùng NPV hoặc Incremental IRR.",
+    "Dòng tiền đổi dấu nhiều lần (non-conventional) có thể cho nhiều IRR hoặc không có IRR — phải kiểm tra trước khi áp dụng quy tắc IRR.",
+    "Payback Rule bỏ qua toàn bộ dòng tiền sau điểm cutoff và không chiết khấu — không bao giờ dùng làm quy tắc quyết định chính, chỉ mang tính tham khảo thanh khoản."
   ],
-  quiz:{q:"Khi công ty bị giới hạn vốn (Capital Rationing), công cụ nào là tốt nhất để xếp hạng dự án?[cite: 1]",
-        opts:["IRR","NPV","Profitability Index (PI)","Payback Period"], correct:2,
-        fb:`PI tối đa hoá NPV sinh ra trên mỗi đồng vốn bị giới hạn[cite: 1].`}
+  quiz:{q:"Công ty bị giới hạn ngân sách (capital rationing) và có 3 dự án độc lập. Công cụ xếp hạng phù hợp nhất là gì?",
+        opts:["IRR","Payback Period","Profitability Index (PI)","Không cần công cụ, làm hết"], correct:2,
+        fb:"PI đo NPV tạo ra trên mỗi đồng vốn bỏ ra — chính là tiêu chí đúng khi vốn bị giới hạn và cần chọn tổ hợp dự án tối ưu."}
 },
 {
   id:4, code:"L04", enTitle:"Fundamentals of Capital Budgeting",
-  viSub:"Nền tảng lập ngân sách vốn: FCF & Lợi nhuận",
+  viSub:"Nền tảng lập ngân sách vốn: dự báo lợi nhuận & dòng tiền tự do (FCF)",
   reading:"Reading: CF-B&D, Ch. 8",
   blocks:[
-    {h_en:"From Earnings to Free Cash Flow (FCF)", h_vi:"Từ Lợi nhuận sang Dòng tiền tự do (FCF)",
-     en:`Unlevered Net Income = $EBIT \\times (1 - \\tau_c)$. FCF adjusts for non-cash items and investment needs[cite: 1].`,
-     vi:`Lợi nhuận kế toán có chứa khấu hao (không phải dòng tiền thực) nên cần cộng ngược lại. Trừ đi CapEx và thay đổi NWC để ra FCF[cite: 1].`,
-     formula:`$$\\text{Unlevered NI} = EBIT \\times (1 - \\tau_c)$$
-$$FCF = \\text{Unlevered NI} + \\text{Depreciation} - CapEx - \\Delta NWC$$`},
-    {h_en:"Opportunity Costs, Externalities, Sunk Costs", h_vi:"Chi phí cơ hội, Ngoại ứng, Chi phí chìm",
-     en:`Sunk costs are irrelevant[cite: 1]. Opportunity costs and Externalities (Cannibalization) must be included[cite: 1].`,
-     vi:`Sunk cost (chi phí chìm) bỏ qua[cite: 1]. Cannibalization (ăn mòn doanh thu sản phẩm cũ) phải bị trừ vào dòng tiền dự án mới[cite: 1].`}
+    {h_en:"Capital Budget & Forecasting Earnings", h_vi:"Ngân sách vốn & Dự báo lợi nhuận",
+     en:`Capital Budget lists planned investments. Forecasting starts from an Incremental Income Statement — only cash flows caused by the project (incremental basis).`,
+     vi:`Từ khoá quan trọng nhất chương này: <b>incremental</b> (gia tăng). Chỉ tính những dòng tiền <i>thay đổi vì có dự án</i> — không tính chi phí đã phát sinh (sunk cost), không quên chi phí cơ hội, có tính đến ảnh hưởng chéo (cannibalization) lên các sản phẩm khác của công ty.`},
+    {h_en:"From Earnings to Free Cash Flow (FCF)", h_vi:"Từ lợi nhuận sang Dòng tiền tự do (FCF)",
+     en:`Unlevered Net Income = EBIT × (1−tax rate). FCF adjusts for non-cash items and investment needs.`,
+     vi:`Lợi nhuận kế toán (Net Income) KHÔNG phải là dòng tiền — vì có khấu hao (non-cash) và không phản ánh chi vốn (CapEx) hay thay đổi vốn lưu động (NWC). FCF mới là con số dùng để chiết khấu tính NPV.`,
+     formula:`Unlevered Net Income = (Revenue − Costs − Depreciation) × (1 − Tax rate)
+FCF = Unlevered Net Income + Depreciation − CapEx − ΔNWC
+ΔNWC = NWCt − NWCt-1   (NWC = Cash+Inventory+AR − AP, thường loại tiền mặt dư thừa)`},
+    {h_en:"Sunk Costs, Opportunity Costs, Externalities", h_vi:"Chi phí chìm, chi phí cơ hội, ngoại ứng",
+     en:`Sunk costs (already spent) are irrelevant. Opportunity costs (value of the next best alternative use of a resource) must be included. Externalities (cannibalization, project spillovers) must be included.`,
+     vi:`Đây là "bộ ba bẫy" hay ra thi nhất của chương:
+     <ul><li><b>Sunk cost</b>: tiền đã chi (VD: chi phí nghiên cứu thị trường đã trả) — <b>KHÔNG</b> đưa vào phân tích NPV vì dù chọn hay không chọn dự án, số tiền đó cũng đã mất.</li>
+     <li><b>Opportunity cost</b>: nếu dùng một nhà xưởng có sẵn cho dự án mới, phải trừ đi giá trị nó có thể tạo ra nếu cho thuê/dùng việc khác — kể cả khi không có dòng tiền thực chi ra.</li>
+     <li><b>Externalities/Cannibalization</b>: sản phẩm mới làm giảm doanh số sản phẩm cũ của chính công ty → phần doanh thu bị mất đi này phải trừ vào dòng tiền dự án mới.</li></ul>`},
+    {h_en:"Depreciation & Terminal/Continuation Value", h_vi:"Khấu hao & Giá trị cuối kỳ",
+     en:`Depreciation is a non-cash expense that reduces taxable income (tax shield) then is added back in FCF. At project end, account for salvage value (after-tax) and NWC recovery.`,
+     vi:`Khấu hao không phải dòng tiền, nhưng vẫn quan trọng vì nó tạo ra <b>tấm chắn thuế</b> (tax shield) = Khấu hao × thuế suất — làm giảm số thuế thực phải trả. Ở năm cuối dự án, nhớ cộng lại: (1) giá trị thanh lý tài sản sau thuế, (2) thu hồi vốn lưu động ròng (NWC) đã bỏ ra trước đó.`,
+     formula:`Tax shield từ khấu hao = Depreciation × Tax rate
+Sau thuế thanh lý = Giá bán − (Giá bán − Giá trị sổ sách còn lại) × Tax rate`}
   ],
   examples:[
-    {title:"Tính OCF và FCF dự án Titan-X",
-     q:`Máy bơm Titan-X: Doanh thu $\\$25M$, Chi phí $\\$14M$, Khấu hao $\\$3M$, Thuế $30\\%$, CapEx $\\$0$, $\\Delta NWC = \\$500k$. Tính FCF năm 1.[cite: 1]`,
-     sol:`$EBIT = 25 - 14 - 3 = \\$8M$[cite: 1].<br>
-     Unlevered NI $= 8 \\times (1 - 0.30) = \\$5.6M$[cite: 1].<br>
-     $FCF_1 = 5.6 + 3.0 - 0 - 0.5 = \\$8.10M$[cite: 1].`},
-    {title:"Xử lý Thanh lý tài sản (Salvage Value)",
-     q:`Bán thiết bị với giá thị trường $\\$400k$, giá trị sổ sách $\\$500k$. Thuế $30\\%$. Dòng tiền thanh lý sau thuế (ATSV) là bao nhiêu?[cite: 1]`,
-     sol:`Lỗ khi bán: $400k - 500k = -\\$100k$[cite: 1].<br>
-     Tiết kiệm thuế (Tax shield): $-100k \\times 30\\% = -\\$30k$[cite: 1].<br>
-     $ATSV = 400k - (-30k) = \\$430k$[cite: 1].`}
+    {title:"Ví dụ: Tính FCF một năm điển hình",
+     q:`Dự án: Doanh thu $500,000; Chi phí hoạt động $200,000; Khấu hao $50,000; Thuế 25%; CapEx năm nay $30,000; ΔNWC $10,000. Tính FCF.`,
+     sol:`EBIT = 500,000−200,000−50,000 = 250,000.
+     Unlevered NI = 250,000×(1−0.25) = 187,500.
+     FCF = 187,500 + 50,000 (cộng lại khấu hao) − 30,000 (CapEx) − 10,000 (ΔNWC) = <b>$197,500</b>.`},
+    {title:"Ví dụ: Bẫy Sunk Cost & Opportunity Cost",
+     q:`Công ty đã chi $200,000 nghiên cứu thị trường (đã trả, xong rồi). Nếu triển khai dự án, công ty sẽ dùng một nhà kho hiện có, hiện đang cho thuê ngoài với giá $40,000/năm. Hai khoản này có đưa vào phân tích NPV dự án mới không?`,
+     sol:`$200,000 nghiên cứu thị trường: đây là <b>sunk cost</b> — đã chi bất kể quyết định thế nào → <b>KHÔNG</b> đưa vào FCF.
+     $40,000/năm cho thuê nhà kho: đây là <b>opportunity cost</b> — nếu dùng cho dự án mới sẽ mất khoản thu này → <b>PHẢI trừ</b> $40,000 (sau thuế nếu cần) mỗi năm vào dòng tiền dự án, dù không có khoản chi tiền mặt thực tế nào cho việc này.`}
   ],
   traps:[
-    "Quên cộng lại Khấu hao sau khi tính thuế[cite: 1].",
-    "Đưa Sunk Cost (như chi phí nghiên cứu thị trường đã trả) vào phân tích NPV[cite: 1]."
+    "Sunk cost KHÔNG BAO GIỜ được đưa vào NPV — dù đề bài có nêu cụ thể số tiền, đó là 'bẫy thông tin thừa'.",
+    "Quên cộng lại Khấu hao sau khi tính Unlevered Net Income — khấu hao chỉ có tác dụng làm giảm thuế (tax shield), bản thân nó không phải dòng tiền chi ra.",
+    "Quên thu hồi NWC và giá trị thanh lý (salvage, sau thuế) ở năm cuối dự án — đây thường là khoản tiền lớn bị bỏ sót."
   ],
-  quiz:{q:"Chi phí nghiên cứu thị trường (Market Analysis) đã thanh toán trước khi xem xét dự án được gọi là gì?[cite: 1]",
-        opts:["Opportunity Cost","Sunk Cost","Externalities","Incremental Cost"], correct:1,
-        fb:`Sunk cost là chi phí đã xảy ra và không thể thu hồi, do đó hoàn toàn bị bỏ qua khi tính FCF dự án[cite: 1].`}
+  quiz:{q:"Điều nào sau đây KHÔNG nên đưa vào dòng tiền tự do (FCF) của một dự án mới?",
+        opts:["Chi phí cơ hội của tài sản sẵn có được dùng cho dự án","Sự sụt giảm doanh thu ở sản phẩm cũ do cannibalization","Chi phí nghiên cứu khả thi đã chi trước khi ra quyết định (sunk cost)","Thay đổi vốn lưu động ròng (ΔNWC)"], correct:2,
+        fb:"Sunk cost là chi phí đã phát sinh không thể thu hồi, không liên quan đến quyết định tương lai — không đưa vào NPV."}
 },
 {
   id:5, code:"L05", enTitle:"Valuing Bonds",
-  viSub:"Định giá Trái phiếu: Giá, lợi suất, cấu trúc kỳ hạn",
+  viSub:"Định giá Trái phiếu: giá, lợi suất, cấu trúc kỳ hạn lãi suất",
   reading:"Reading: CF-B&D, Ch. 6",
   blocks:[
-    {h_en:"Bond Cash Flows & Pricing", h_vi:"Định giá & Dòng tiền trái phiếu",
-     en:`Bond Price = PV(coupons as annuity) + PV(face value)[cite: 1].`,
-     vi:`Giá trái phiếu là PV của các khoản Coupon (Annuity) cộng với PV của Mệnh giá (Face Value) ở năm cuối[cite: 1].`,
-     formula:`$$P = C \\times \\left[ \\frac{1 - (1+YTM)^{-N}}{YTM} \\right] + \\frac{FV}{(1+YTM)^N}$$`},
-    {h_en:"Price and Yield Relationship", h_vi:"Mối quan hệ Giá - Lợi suất",
-     en:`If Coupon Rate > YTM $\\rightarrow$ price > Face Value (Premium). Convexity shows that prices rise more when yields fall than they drop when yields rise[cite: 1].`,
-     vi:`Lãi suất thị trường (YTM) và giá trái phiếu di chuyển ngược chiều. Mối quan hệ này có tính lồi (Convexity)[cite: 1].`}
+    {h_en:"Bond Cash Flows & Pricing", h_vi:"Dòng tiền trái phiếu & Định giá",
+     en:`A bond pays periodic coupons (Coupon = Face Value × Coupon Rate) plus Face Value at maturity. Bond Price = PV(coupons as annuity) + PV(face value).`,
+     vi:`Trái phiếu là ứng dụng trực tiếp của công thức annuity + PV đơn: coupon là annuity, mệnh giá là 1 khoản tiền đơn nhận ở cuối. Giá trái phiếu chính là PV của toàn bộ dòng tiền này, chiết khấu theo lợi suất yêu cầu của thị trường (YTM) — KHÔNG phải coupon rate.`,
+     formula:`Coupon = Face Value × Coupon Rate / số kỳ trả lãi mỗi năm
+Bond Price = Coupon × [1−1/(1+YTM)^N]/YTM + FaceValue/(1+YTM)^N
+           = PV(Coupon annuity) + PV(Face Value)`},
+    {h_en:"Par, Premium, Discount Bonds", h_vi:"Trái phiếu ngang giá, giá cao hơn/thấp hơn mệnh giá",
+     en:`If Coupon Rate = YTM → price = Face Value (par). If Coupon Rate > YTM → price > Face Value (premium). If Coupon Rate < YTM → price < Face Value (discount).`,
+     vi:`Bản chất: giá trái phiếu và lợi suất thị trường (YTM) di chuyển <b>ngược chiều nhau</b>. Khi lãi suất thị trường tăng (YTM tăng) → giá trái phiếu hiện có giảm (vì coupon cố định trở nên kém hấp dẫn hơn) — đây là nguyên nhân "rủi ro lãi suất" của trái phiếu.`},
+    {h_en:"Yield to Maturity (YTM) & Term Structure", h_vi:"Lợi suất đáo hạn & Cấu trúc kỳ hạn lãi suất",
+     en:`YTM: the discount rate that equates bond price to PV of its cash flows (IRR of the bond). Term structure: relationship between interest rates and time to maturity (yield curve) — normal (upward), inverted, flat.`,
+     vi:`YTM chính là IRR áp dụng cho trái phiếu — bẫy thi hay gặp: đề cho "lợi suất coupon" (coupon rate) và hỏi giá, sinh viên nhầm dùng coupon rate để chiết khấu thay vì YTM thị trường. Luôn phân biệt: <b>Coupon rate</b> quyết định số tiền coupon nhận được (cố định); <b>YTM</b> quyết định tỷ lệ chiết khấu (biến động theo thị trường).`,
+     formula:`Zero-coupon bond price = FaceValue/(1+YTM)^N
+Zero-coupon YTM = (FaceValue/Price)^(1/N) − 1`}
   ],
   examples:[
-    {title:"Định giá trái phiếu khi YTM thay đổi (Lãi suất bán niên)",
-     q:`Trái phiếu Gamma: Coupon $6\\%$/năm, trả 6 tháng/lần, kỳ hạn 20 năm, mệnh giá $\\$1,000$. Nếu YTM giảm từ $6\\%$ xuống $4\\%$, giá mới là bao nhiêu?[cite: 1]`,
-     sol:`Coupon bán niên: $C = \\frac{60}{2} = \\$30$. Kỳ hạn $N = 20 \\times 2 = 40$ kỳ. Lãi suất kỳ $r = \\frac{4\\%}{2} = 2\\%$[cite: 1].<br>
-     $$P = 30 \\times \\left[ \\frac{1 - (1.02)^{-40}}{0.02} \\right] + \\frac{1,000}{1.02^{40}} \\approx \\$1,273.55$$[cite: 1].`},
-    {title:"Arbitrage trên đường cong lợi suất Zero-coupon",
-     q:`Giá Zero-coupon 1, 2, 3 năm là $\\$9,650, \\$9,200, \\$8,700$ (Mệnh giá 10k). Trái phiếu coupon $9\\%$/năm, 3 năm đang bán $\\$11,300$. Có arbitrage không?[cite: 1]`,
-     sol:`Hệ số chiết khấu: $DF_1=0.965, DF_2=0.920, DF_3=0.870$[cite: 1].<br>
-     Giá lý thuyết: $P_{theo} = 900(0.965) + 900(0.920) + 10,900(0.870) = \\$11,179.50$[cite: 1].<br>
-     Giá thị trường ($\\$11,300$) $>$ Giá lý thuyết $\\Rightarrow$ Trái phiếu bị định giá cao. Bán khống trái phiếu này và mua các Zero-coupon tương ứng để hưởng lợi chênh lệch $\\$120.50$[cite: 1].`}
+    {title:"Ví dụ: Định giá trái phiếu coupon",
+     q:`Trái phiếu mệnh giá $1,000, coupon rate 6%/năm trả 1 lần/năm, kỳ hạn 5 năm, YTM thị trường hiện tại 8%. Giá trái phiếu hôm nay?`,
+     sol:`Coupon = 1,000×6% = $60/năm.
+     PV(coupon annuity, 5 kỳ, r=8%) = 60×[1−1/1.08^5]/0.08 = 60×3.9927 = $239.56.
+     PV(Face Value) = 1,000/1.08^5 = $680.58.
+     Giá trái phiếu = 239.56+680.58 = <b>$920.14</b> — thấp hơn mệnh giá (discount bond) vì coupon rate (6%) < YTM (8%), đúng như quy luật.`},
+    {title:"Ví dụ: Zero-coupon bond",
+     q:`Trái phiếu zero-coupon, mệnh giá $1,000, kỳ hạn 3 năm, đang bán $850. YTM là bao nhiêu?`,
+     sol:`YTM = (1,000/850)^(1/3) − 1 = (1.17647)^(0.3333) − 1 ≈ 1.0557−1 = <b>5.57%</b>.`}
   ],
   traps:[
-    "Quên chia đôi lãi suất và nhân đôi số kỳ khi gặp trái phiếu trả lãi bán niên (semiannual)[cite: 1].",
-    "Nhầm lẫn Coupon Rate (cố định) với YTM (lợi suất theo thị trường biến động)[cite: 1]."
+    "Nhầm coupon rate và YTM — coupon rate cố định trong hợp đồng, YTM là lãi suất chiết khấu theo thị trường hiện hành, hai con số này thường KHÁC nhau.",
+    "Khi trái phiếu trả lãi nửa năm (semiannual), phải chia coupon rate cho 2, nhân số kỳ N cho 2, và chia YTM cho 2 trước khi áp dụng công thức — quên bước quy đổi kỳ hạn là lỗi rất phổ biến.",
+    "Giá trái phiếu và YTM di chuyển ngược chiều — nếu tính ra giá tăng khi YTM tăng, chắc chắn có sai sót ở đâu đó."
   ],
-  quiz:{q:"Nếu một trái phiếu có Coupon Rate < YTM, trái phiếu đó sẽ được giao dịch ở mức:",
-        opts:["Premium (Cao hơn mệnh giá)","Par (Bằng mệnh giá)","Discount (Thấp hơn mệnh giá)","Không xác định"], correct:2,
-        fb:`Khi Coupon thấp hơn lãi suất thị trường (YTM), nhà đầu tư sẽ chiết khấu giá của nó xuống dưới mệnh giá (Discount)[cite: 1].`}
+  quiz:{q:"Một trái phiếu có coupon rate 5%, đang giao dịch ở mức GIÁ THẤP HƠN mệnh giá (discount). Điều này ngụ ý điều gì về YTM?",
+        opts:["YTM = 5%","YTM < 5%","YTM > 5%","Không đủ thông tin"], correct:2,
+        fb:"Giá < mệnh giá (discount bond) xảy ra khi coupon rate < YTM — thị trường yêu cầu lợi suất cao hơn coupon cố định nên chiết khấu mạnh, đẩy giá xuống dưới mệnh giá."}
 },
 {
   id:6, code:"L06", enTitle:"Valuing Stocks",
-  viSub:"Định giá Cổ phiếu: DDM, Total Payout & DCF",
+  viSub:"Định giá Cổ phiếu: Dividend-Discount, Total Payout, DCF, Comparables",
   reading:"Reading: CF-B&D, Ch. 9",
   blocks:[
-    {h_en:"Dividend-Discount Model (DDM)", h_vi:"Mô hình chiết khấu cổ tức",
-     en:`Stock price = PV of all future dividends. Constant Growth: $P_0 = \\frac{Div_1}{r_E - g}$[cite: 1].`,
-     vi:`Giá cổ phiếu bằng hiện giá của chuỗi cổ tức tương lai. Công thức Gordon Growth yêu cầu $r_E > g$[cite: 1].`,
-     formula:`$$P_0 = \\frac{Div_1}{r_E - g}$$
-$$g = \\text{Retention Rate} \\times \\text{RONI}$$`},
-    {h_en:"Total Payout & DCF Models", h_vi:"Tổng chi trả & Chiết khấu dòng tiền (DCF)",
-     en:`Total Payout Model values all of the firm's equity using total dividends and repurchases[cite: 1]. DCF values Enterprise Value using WACC[cite: 1].`,
-     vi:`DCF Model chiết khấu FCF bằng WACC để ra Enterprise Value. Sau đó trừ Nợ và cộng Tiền mặt để ra Vốn hoá (Equity Value)[cite: 1].`,
-     formula:`$$EV = \\sum \\frac{FCF_t}{(1+r_{wacc})^t} + \\frac{V_N}{(1+r_{wacc})^N}$$
-$$V_N = \\frac{FCF_{N+1}}{r_{wacc} - g_{FCF}}$$`}
+    {h_en:"The Dividend-Discount Model (DDM)", h_vi:"Mô hình chiết khấu cổ tức",
+     en:`A one-year investor: P0 = (Div1 + P1)/(1+rE). Generalizing to infinite horizon: stock price = PV of all future dividends.`,
+     vi:`Ý tưởng cốt lõi: giá cổ phiếu hôm nay bằng PV của TẤT CẢ cổ tức tương lai — kể cả giá bán lại P1 thực chất cũng chỉ là PV của các cổ tức từ năm 2 trở đi (theo đúng nhà đầu tư tiếp theo). Vì vậy khi "lặp" công thức ra vô hạn, giá bán lại biến mất, chỉ còn lại chuỗi cổ tức.`,
+     formula:`Một năm:  P0 = (Div1 + P1)/(1+rE)
+Tổng quát: P0 = Σ (t=1→∞) Divt/(1+rE)^t
+Constant Growth (Gordon Growth): P0 = Div1/(rE − g)`},
+    {h_en:"Total Payout Model & DCF Model", h_vi:"Mô hình Tổng chi trả & Chiết khấu dòng tiền doanh nghiệp",
+     en:`Total Payout Model: uses dividends + share repurchases (avoids issues when a firm relies heavily on buybacks). Discounted FCF Model: values the entire firm using Free Cash Flow discounted at WACC, then subtracts net debt to get equity value.`,
+     vi:`DDM có nhược điểm: nếu công ty mua lại cổ phiếu (buyback) thay vì trả cổ tức, số cổ phiếu lưu hành giảm → Div/share tăng giả tạo dù tổng tiền trả cho cổ đông không đổi → <b>Total Payout Model</b> khắc phục bằng cách tính trên <i>tổng</i> tiền trả cho cổ đông (dividends + buybacks) rồi chia cho vốn hoá, không chia theo từng cổ phiếu ngay từ đầu.
+     DCF Model đi từ góc độ doanh nghiệp (không chỉ cổ đông): chiết khấu FCF của toàn công ty bằng WACC → ra Enterprise Value → trừ Net Debt → ra Equity Value → chia số cổ phiếu ra giá/cổ phiếu.`,
+     formula:`Total Payout: P0 = PV(Total Dividends + Repurchases) / Số CP đang lưu hành (hiện tại)
+Enterprise Value = PV(FCF) chiết khấu bằng WACC
+Equity Value = Enterprise Value − Net Debt
+Giá/cổ phiếu = Equity Value / Số CP lưu hành`},
+    {h_en:"Valuation by Comparables (Multiples)", h_vi:"Định giá theo hệ số so sánh",
+     en:`Uses valuation multiples of comparable firms (P/E, EV/EBITDA, etc.) — quick but relies on finding truly comparable firms and ignores firm-specific differences.`,
+     vi:`Phương pháp "tương đối" — nhanh, dễ, hay dùng trong thực tế ngân hàng đầu tư, nhưng bẫy thi hay hỏi: nó KHÔNG dựa trên dòng tiền nội tại của công ty, mà dựa vào định giá của thị trường với các công ty tương tự — nên sai nếu cả ngành đang bị định giá sai (bong bóng hoặc bi quan quá mức).`},
+    {h_en:"Limitations of the DDM / Growth Rate Estimation", h_vi:"Hạn chế mô hình DDM & Ước lượng tốc độ tăng trưởng g",
+     en:`g = Retention Rate × ROE (sustainable growth rate). DDM highly sensitive to assumptions about g and rE — small changes cause large valuation swings, especially as g→rE.`,
+     vi:`Đây là bẫy tính toán số học phổ biến nhất chương 6: khi g tiến gần bằng rE, mẫu số (rE−g) tiến về 0 → giá trị P0 "nổ tung" (rất nhạy). Đề thi hay kiểm tra học sinh có nhận ra bài toán vô nghĩa khi g ≥ rE hay không (công thức Gordon Growth chỉ đúng khi rE > g).`,
+     formula:`g = Retention Rate × ROE = (1 − Payout Ratio) × ROE`}
   ],
   examples:[
-    {title:"DDM với tốc độ tăng trưởng thay đổi (Multi-stage)",
-     q:`Cổ phiếu ART: EPS hiện tại $\\$3.00$, tăng $25\\%$/năm trong 3 năm, không trả cổ tức. Sau năm 3, tăng đều $5\\%$/năm và trả $50\\%$ EPS làm cổ tức. $r_E = 10\\%$. Tính $P_0$?[cite: 1]`,
-     sol:`$EPS_1=3.75, EPS_2=4.69, EPS_3=5.86$. (Div = 0)[cite: 1].<br>
-     $EPS_4 = 5.86 \\times 1.05 = 6.15$. $Div_4 = 6.15 \\times 50\\% = 3.08$[cite: 1].<br>
-     $P_3 = \\frac{Div_4}{r_E - g} = \\frac{3.08}{0.10 - 0.05} = 61.52$[cite: 1].<br>
-     $P_0 = \\frac{P_3}{1.10^3} = \\frac{61.52}{1.331} = \\$46.22$[cite: 1].`},
-    {title:"Định giá bằng Bội số (Multiples) EV/EBITDA",
-     q:`Alpha có Net Debt = $\\$150M$, EBITDA = $\\$45M$, 8 triệu cổ phiếu. Beta có $EV/EBITDA = 8.5$. Định giá 1 cổ phiếu Alpha?[cite: 1]`,
-     sol:`$EV_{Alpha} = 8.5 \\times 45 = \\$382.5M$[cite: 1].<br>
-     $Equity_{Alpha} = 382.5 - 150 = \\$232.5M$[cite: 1].<br>
-     $P_0 = \\frac{232.5}{8} = \\$29.06$/cổ phiếu[cite: 1].`}
+    {title:"Ví dụ: Gordon Growth Model",
+     q:`Cổ phiếu dự kiến chi trả cổ tức $2 vào cuối năm sau, tăng trưởng đều 4%/năm mãi mãi. Chi phí vốn cổ phần (rE) là 10%. Giá cổ phiếu hợp lý hôm nay?`,
+     sol:`P0 = Div1/(rE−g) = 2/(0.10−0.04) = 2/0.06 = <b>$33.33</b>.`},
+    {title:"Ví dụ: Ước lượng g từ ROE và tỷ lệ chi trả",
+     q:`Công ty có ROE=15%, tỷ lệ chi trả cổ tức (payout ratio) = 40%. Tốc độ tăng trưởng bền vững g là bao nhiêu?`,
+     sol:`Retention Rate = 1−0.40 = 0.60.
+     g = 0.60×15% = <b>9%</b>.`}
   ],
   traps:[
-    "Dùng DDM khi $g \\geq r_E$ sẽ cho ra kết quả âm hoặc vô nghĩa[cite: 1].",
-    "Quên trừ Net Debt khi tính Equity Value từ Enterprise Value (DCF)[cite: 1]."
+    "Gordon Growth Model chỉ đúng khi rE > g — nếu đề cho g ≥ rE, phải nhận ra mô hình không áp dụng được (kết quả âm/vô nghĩa), không phải cứ thay số vào công thức.",
+    "Nhầm P0 (giá tại t=0, trước khi nhận Div1) với giá sau khi nhận cổ tức đầu tiên — luôn kiểm tra công thức dùng Div1 (cổ tức năm SAU), không phải Div0 (cổ tức vừa chi trả).",
+    "Total Payout Model chia cho số cổ phiếu HIỆN TẠI, không phải số cổ phiếu tương lai (sau buyback) — nếu chia nhầm sẽ định giá sai."
   ],
-  quiz:{q:"Nếu công ty cắt giảm tỷ lệ trả cổ tức để tái đầu tư, giá cổ phiếu sẽ tăng KHI VÀ CHỈ KHI:[cite: 1]",
-        opts:["Tỷ lệ lạm phát giảm","Lợi nhuận trên vốn đầu tư mới (RONI) > chi phí vốn (rE)","Khấu hao giảm","Không bao giờ tăng"], correct:1,
-        fb:`Giữ lại lợi nhuận chỉ tạo ra giá trị gia tăng nếu dự án mới sinh lời cao hơn chi phí cơ hội của vốn ($RONI > r_E$)[cite: 1].`}
+  quiz:{q:"Công ty có rE=8% và tốc độ tăng trưởng cổ tức kỳ vọng g=9%. Vấn đề gì xảy ra khi áp dụng Gordon Growth Model?",
+        opts:["Không có vấn đề gì, cứ áp dụng công thức bình thường","Mô hình không áp dụng được vì cần rE > g","Giá cổ phiếu sẽ bằng 0","Cần nhân đôi cổ tức"], correct:1,
+        fb:"Gordon Growth Model yêu cầu rE>g để công thức có ý nghĩa kinh tế (PV hữu hạn, dương). Khi g≥rE, kết quả sẽ âm hoặc vô cực — dấu hiệu giả định tăng trưởng vĩnh viễn phi thực tế."}
 },
 {
-  id:7, code:"L07 & L08", enTitle:"Risk, Return & The CAPM",
-  viSub:"Rủi ro, Lợi nhuận & Mô hình CAPM",
-  reading:"Reading: CF-B&D, Ch. 10 & 11",
+  id:7, code:"L07", enTitle:"Risk and Return: Market Efficiency & Pricing of Risk",
+  viSub:"Rủi ro & Lợi nhuận: Hiệu quả thị trường & Định giá rủi ro",
+  reading:"Reading: CF-B&D, Ch. 10 & 11 (phần đầu)",
   blocks:[
-    {h_en:"Measuring Risk & Return", h_vi:"Đo lường Rủi ro và Lợi nhuận",
-     en:`Variance/Standard Deviation measure the dispersion of returns[cite: 1]. Systematic vs. Idiosyncratic Risk[cite: 1].`,
-     vi:`Rủi ro riêng biệt (Idiosyncratic) có thể loại bỏ qua đa dạng hoá. Rủi ro hệ thống (Systematic) thì không thể[cite: 1].`,
-     formula:`$$\\sigma^2 = \\sum p_i \\times (R_i - E[R])^2$$`},
-    {h_en:"Portfolio Risk & CAPM", h_vi:"Rủi ro danh mục & Mô hình CAPM",
-     en:`Beta measures sensitivity to systematic risk[cite: 1]. CAPM links expected return to Beta and the Market Risk Premium[cite: 1].`,
-     vi:`Beta đo lường rủi ro hệ thống. CAPM cho biết lợi nhuận kỳ vọng dựa trên mức bù rủi ro thị trường[cite: 1].`,
-     formula:`$$E[R_i] = r_f + \\beta_i \\times (E[R_m] - r_f)$$`}
+    {h_en:"Measuring Risk & Return: Historical Returns", h_vi:"Đo lường rủi ro & lợi nhuận từ dữ liệu lịch sử",
+     en:`Realized Return = (Dividend + Capital Gain)/Initial Price. Expected Return = probability-weighted average of possible returns. Variance/Standard Deviation measure the dispersion (volatility) of returns.`,
+     vi:`Bản chất: lợi nhuận kỳ vọng là "trung bình" nhưng rủi ro (variance/std dev) là "độ phân tán quanh trung bình đó". Hai cổ phiếu có cùng lợi nhuận kỳ vọng nhưng độ lệch chuẩn khác nhau → cổ phiếu có độ lệch chuẩn cao hơn thì rủi ro hơn dù kỳ vọng bằng nhau.`,
+     formula:`R = (Div1 + (P1−P0)) / P0
+E[R] = Σ pi × Ri
+Var(R) = Σ pi × (Ri − E[R])²
+SD(R) = √Var(R)`},
+    {h_en:"Market Efficiency", h_vi:"Hiệu quả thị trường",
+     en:`Efficient Markets Hypothesis: security prices reflect all available information, so investors cannot expect to earn returns systematically above what is warranted for the risk they bear (no easy money / no free lunch). Weak/Semi-strong/Strong forms.`,
+     vi:`Bẫy thi: sinh viên hay nhầm "thị trường hiệu quả" nghĩa là "giá luôn đúng" — thực ra chỉ có nghĩa là <b>không có cách hệ thống để kiếm lời vượt trội một cách chắc chắn dựa trên thông tin đã công khai</b>, giá vẫn có thể sai lệch tạm thời do phản ứng cảm xúc, nhưng khó khai thác được liên tục có lợi nhuận.`},
+    {h_en:"Diversification & Firm-specific vs Systematic Risk", h_vi:"Đa dạng hoá danh mục & Rủi ro riêng công ty vs rủi ro hệ thống",
+     en:`Total risk = Firm-specific (idiosyncratic, diversifiable) risk + Systematic (market, non-diversifiable) risk. Diversification eliminates firm-specific risk in a large portfolio, but systematic risk remains.`,
+     vi:`Đây là nền tảng để hiểu tại sao CAPM (Lecture 8) chỉ quan tâm đến <b>beta</b> (rủi ro hệ thống) mà bỏ qua độ lệch chuẩn riêng lẻ của từng cổ phiếu: vì nhà đầu tư hợp lý luôn đa dạng hoá, nên phần rủi ro riêng công ty (có thể loại bỏ miễn phí bằng đa dạng hoá) <b>không được thị trường trả thêm lợi nhuận</b> — chỉ có rủi ro hệ thống (không loại bỏ được) mới được đền bù bằng phần bù rủi ro.`},
+    {h_en:"The Risk Premium & No Arbitrage Pricing of Risk", h_vi:"Phần bù rủi ro & Định giá rủi ro không chênh lệch",
+     en:`Investors require a Risk Premium above the risk-free rate to hold risky assets — the size of the premium depends on the amount of NON-diversifiable (systematic) risk, not total risk.`,
+     vi:`Nguyên lý này giải thích một nghịch lý hay bị hỏi trong đề thi: một cổ phiếu có <i>độ lệch chuẩn rất cao</i> (rủi ro tổng thể lớn) nhưng nếu phần lớn rủi ro đó là <b>firm-specific</b> (VD: rủi ro vụ kiện riêng của công ty), thì lợi nhuận kỳ vọng của nó KHÔNG cần cao — vì rủi ro đó "biến mất" khi nằm trong một danh mục đa dạng hoá tốt.`}
   ],
   examples:[
-    {title:"Tính rủi ro danh mục có tương quan",
-     q:`Làm thế nào để giảm rủi ro danh mục (Standard Deviation) mà không giảm lợi nhuận kỳ vọng?[cite: 1]`,
-     sol:`Kết hợp các tài sản có hệ số tương quan (Correlation) thấp hoặc âm. Covariance âm sẽ làm giảm đáng kể rủi ro tổng thể của danh mục (Diversification)[cite: 1].`},
-    {title:"Tính Expected Return bằng CAPM",
-     q:`Cổ phiếu có $\\beta = 1.25$. Lãi suất phi rủi ro $r_f = 4\\%$. Phần bù rủi ro thị trường (Market Risk Premium) là $5\\%$. Tính lợi nhuận kỳ vọng?[cite: 1]`,
-     sol:`$$E[R] = 4\\% + 1.25 \\times 5\\% = 4\\% + 6.25\\% = 10.25\\%$$[cite: 1].`}
+    {title:"Ví dụ: Tính lợi nhuận kỳ vọng & độ lệch chuẩn",
+     q:`Cổ phiếu X có 3 kịch bản: 30% xác suất R=20%, 50% xác suất R=10%, 20% xác suất R=−5%. Tính E[R] và độ lệch chuẩn.`,
+     sol:`E[R] = 0.3×20%+0.5×10%+0.2×(−5%) = 6%+5%−1% = <b>10%</b>.
+     Var = 0.3×(20−10)²+0.5×(10−10)²+0.2×(−5−10)² = 0.3×100+0+0.2×225 = 30+45 = 75 (%²).
+     SD = √75 ≈ <b>8.66%</b>.`},
+    {title:"Ví dụ: Firm-specific vs systematic risk trong định giá",
+     q:`Cổ phiếu A có độ lệch chuẩn 40%/năm nhưng phần lớn đến từ một vụ kiện đang chờ xử — rủi ro rất đặc thù của công ty này, không liên quan thị trường chung. Cổ phiếu A có cần lợi nhuận kỳ vọng cao hơn nhiều so với thị trường không?`,
+     sol:`KHÔNG nhất thiết. Vì phần lớn rủi ro của A là <b>firm-specific</b> (diversifiable) — nhà đầu tư có thể loại bỏ hoàn toàn rủi ro này bằng cách nắm giữ A trong một danh mục đa dạng hoá. Thị trường chỉ đền bù cho phần rủi ro <b>hệ thống</b> (systematic) — nếu beta của A không cao, lợi nhuận kỳ vọng của A không cần cao dù độ lệch chuẩn tổng thể lớn.`}
   ],
   traps:[
-    "Thị trường hiệu quả không có nghĩa là 'giá luôn đúng', mà là 'không thể kiếm lời vượt trội nhờ thông tin cũ'[cite: 1].",
-    "CAPM sử dụng Market Risk Premium ($E[R_m] - r_f$) nhân với Beta, không phải nhân trực tiếp với $E[R_m]$[cite: 1]."
+    "Nhầm 'thị trường hiệu quả' = 'giá luôn chính xác tuyệt đối' — thực chất chỉ là 'khó kiếm lời vượt trội một cách hệ thống dựa trên thông tin sẵn có'.",
+    "Cho rằng độ lệch chuẩn (total risk) càng cao thì lợi nhuận kỳ vọng càng phải cao — SAI nếu phần lớn rủi ro là firm-specific (có thể đa dạng hoá loại bỏ).",
+    "Quên rằng đa dạng hoá chỉ loại bỏ được rủi ro firm-specific, KHÔNG loại bỏ được rủi ro hệ thống (thị trường) dù danh mục có bao nhiêu cổ phiếu."
   ],
-  quiz:{q:"Rủi ro nào sau đây CÓ THỂ bị loại bỏ thông qua việc đa dạng hoá danh mục đầu tư?[cite: 1]",
-        opts:["Rủi ro lạm phát","Rủi ro hệ thống (Systematic Risk)","Rủi ro riêng biệt (Idiosyncratic Risk)","Rủi ro thị trường"], correct:2,
-        fb:`Rủi ro riêng biệt (Idiosyncratic Risk) như thay đổi nhân sự quản lý có thể bị triệt tiêu khi gộp nhiều cổ phiếu[cite: 1].`}
+  quiz:{q:"Nhà đầu tư nắm giữ danh mục đa dạng hoá rất tốt (hàng trăm cổ phiếu). Loại rủi ro nào VẪN CÒN tồn tại trong danh mục này?",
+        opts:["Firm-specific risk của từng cổ phiếu","Systematic (market) risk","Không còn rủi ro nào","Chỉ còn rủi ro thanh khoản"], correct:1,
+        fb:"Đa dạng hoá loại bỏ rủi ro riêng từng công ty (firm-specific) nhưng không loại bỏ được rủi ro hệ thống/thị trường — đây là lý do beta (đo rủi ro hệ thống) là thước đo rủi ro quan trọng trong CAPM."}
+},
+{
+  id:8, code:"L08", enTitle:"Optimal Portfolio Choice & The CAPM",
+  viSub:"Lựa chọn danh mục tối ưu & Mô hình định giá tài sản vốn (CAPM)",
+  reading:"Reading: CF-B&D, Ch. 11",
+  blocks:[
+    {h_en:"Portfolio Return, Variance & Covariance", h_vi:"Lợi nhuận, phương sai & hiệp phương sai danh mục",
+     en:`Portfolio return = weighted average of individual returns. Portfolio variance depends on individual variances AND covariances between assets — this is the mathematical basis of diversification.`,
+     vi:`Đây là lý do vì sao kết hợp 2 cổ phiếu có tương quan thấp (hoặc âm) giúp giảm rủi ro danh mục nhiều hơn so với chỉ cộng trung bình trọng số độ lệch chuẩn — vì số hạng hiệp phương sai (covariance) trong công thức variance danh mục có thể âm.`,
+     formula:`Rp = w1R1 + w2R2
+Var(Rp) = w1²Var(R1) + w2²Var(R2) + 2w1w2 Cov(R1,R2)
+Cov(R1,R2) = ρ1,2 × SD(R1) × SD(R2)      (ρ = hệ số tương quan, −1≤ρ≤1)`},
+    {h_en:"Efficient Frontier & Optimal Portfolio", h_vi:"Đường biên hiệu quả & Danh mục tối ưu",
+     en:`Efficient Frontier: set of portfolios offering the highest expected return for each level of risk. Combining the risk-free asset with the tangency (optimal) risky portfolio gives the Capital Market Line (CML) — every investor holds a combination of risk-free asset + the SAME tangency portfolio (Separation Theorem).`,
+     vi:`"Separation Theorem" là ý quan trọng nhất chương: mọi nhà đầu tư — dù thích rủi ro nhiều hay ít — đều nên nắm giữ CÙNG một danh mục rủi ro tối ưu (tangency portfolio, trong thực tế xấp xỉ là danh mục thị trường), chỉ khác nhau ở TỶ LỆ giữa tài sản phi rủi ro và danh mục rủi ro đó. Đây chính là lý do lý thuyết cho việc đầu tư vào quỹ chỉ số thị trường.`},
+    {h_en:"Beta & The Capital Asset Pricing Model (CAPM)", h_vi:"Beta & Mô hình CAPM",
+     en:`Beta measures a security's sensitivity to systematic (market) risk. CAPM: expected return = risk-free rate + beta × market risk premium. Security Market Line (SML) plots this relationship.`,
+     vi:`Beta trả lời câu hỏi: "nếu thị trường tăng/giảm 1%, cổ phiếu này thường tăng/giảm bao nhiêu %?" — β=1: biến động giống thị trường; β>1: biến động mạnh hơn thị trường (rủi ro hệ thống cao); β<1: ít nhạy hơn; β<0 (hiếm): di chuyển ngược thị trường, có giá trị "bảo hiểm" nên có thể có lợi nhuận kỳ vọng THẤP HƠN cả lãi suất phi rủi ro.`,
+     formula:`βi = Cov(Ri, Rmkt) / Var(Rmkt)
+CAPM: E[Ri] = rf + βi × (E[Rmkt] − rf)
+      (E[Rmkt]−rf) = Market Risk Premium
+βportfolio = Σ wi × βi   (beta danh mục = bình quân trọng số beta từng tài sản)`}
+  ],
+  examples:[
+    {title:"Ví dụ: Áp dụng CAPM tính lợi nhuận kỳ vọng",
+     q:`rf=3%, lợi nhuận kỳ vọng thị trường E[Rmkt]=9%, beta cổ phiếu X = 1.4. Lợi nhuận kỳ vọng của X theo CAPM?`,
+     sol:`E[RX] = rf + βX×(E[Rmkt]−rf) = 3% + 1.4×(9%−3%) = 3%+1.4×6% = 3%+8.4% = <b>11.4%</b>.`},
+    {title:"Ví dụ: Beta danh mục & Separation Theorem",
+     q:`Danh mục gồm 40% tài sản phi rủi ro (β=0) và 60% danh mục thị trường (β=1). Beta của toàn danh mục là bao nhiêu? Lợi nhuận kỳ vọng nếu rf=2%, E[Rmkt]=8%?`,
+     sol:`βportfolio = 0.4×0 + 0.6×1 = <b>0.6</b>.
+     E[Rp] = rf + βp×(E[Rmkt]−rf) = 2%+0.6×(8%−2%) = 2%+3.6% = <b>5.6%</b>. (Có thể kiểm chứng chéo: E[Rp]=0.4×2%+0.6×8%=0.8%+4.8%=5.6% — khớp.)`}
+  ],
+  traps:[
+    "Beta đo rủi ro HỆ THỐNG, không phải độ lệch chuẩn (total risk) — hai cổ phiếu có độ lệch chuẩn bằng nhau vẫn có thể có beta rất khác nhau nếu tỷ trọng rủi ro riêng công ty khác nhau.",
+    "CAPM chỉ dùng phần bù rủi ro THỊ TRƯỜNG (E[Rmkt]−rf) nhân với beta — không cộng thêm độ lệch chuẩn riêng của cổ phiếu vào công thức.",
+    "Separation Theorem: mọi nhà đầu tư nắm giữ CÙNG một tangency portfolio rủi ro — khác nhau chỉ ở tỷ trọng phân bổ giữa tài sản phi rủi ro và danh mục đó, không phải khác nhau về THÀNH PHẦN danh mục rủi ro."
+  ],
+  quiz:{q:"Một cổ phiếu có beta = −0.3 (hiếm, mang tính 'bảo hiểm' danh mục). Theo CAPM, lợi nhuận kỳ vọng của nó so với lãi suất phi rủi ro (rf) sẽ như thế nào (giả sử market risk premium dương)?",
+        opts:["Cao hơn rf","Thấp hơn rf","Bằng đúng rf","Không thể xác định"], correct:1,
+        fb:"Vì β âm, số hạng β×(E[Rmkt]−rf) âm, nên E[Ri]=rf+(số âm) < rf. Tài sản này có giá trị 'bảo hiểm' (di chuyển ngược thị trường) nên nhà đầu tư chấp nhận lợi nhuận kỳ vọng thấp hơn cả lãi suất phi rủi ro để nắm giữ nó."}
+},
+{
+  id:9, code:"L09", enTitle:"Derivatives: Futures, Forwards & Options",
+  viSub:"Phái sinh: Hợp đồng tương lai, kỳ hạn & quyền chọn",
+  reading:"Reading: CF-B&D, Ch. 20, 21 & 22",
+  blocks:[
+    {h_en:"Introduction to Derivatives / Futures & Forwards", h_vi:"Nhập môn phái sinh / Hợp đồng tương lai & kỳ hạn",
+     en:`A derivative's value is derived from an underlying asset. Forward: private, customized contract to buy/sell an asset at a set price on a future date. Futures: standardized, exchange-traded, marked-to-market daily.`,
+     vi:`Khác biệt cốt lõi Forward vs Futures: Forward là hợp đồng riêng tư (OTC), không chuẩn hoá, có rủi ro đối tác (counterparty risk) cao hơn; Futures được giao dịch trên sàn, chuẩn hoá, có cơ chế <b>ký quỹ hàng ngày (mark-to-market)</b> giúp giảm rủi ro đối tác gần như về 0 — đây là câu hỏi lý thuyết hay ra thi nhất của phần này.`},
+    {h_en:"Introduction to Options & Option Payoffs", h_vi:"Nhập môn quyền chọn & Payoff của quyền chọn",
+     en:`Call option: right (not obligation) to BUY the underlying at strike price K. Put option: right to SELL at K. Long call payoff = max(ST−K, 0); Long put payoff = max(K−ST, 0).`,
+     vi:`Bẫy hay gặp: nhầm giữa <b>Payoff</b> (giá trị nhận được khi đáo hạn, không trừ phí quyền chọn đã trả) và <b>Profit</b> (Payoff − phí quyền chọn đã trả ban đầu, có tính giá trị thời gian tiền của phí). Khi đề hỏi "lợi nhuận" (profit), phải trừ premium; khi hỏi "payoff", không trừ.`,
+     formula:`Long Call Payoff = max(ST − K, 0)
+Long Put Payoff  = max(K − ST, 0)
+Short Call Payoff = −max(ST−K,0)
+Short Put Payoff  = −max(K−ST,0)
+Profit = Payoff − FV(Premium đã trả)`},
+    {h_en:"Put-Call Parity", h_vi:"Ngang giá Quyền chọn mua – bán",
+     en:`Put-Call Parity links call, put, stock, and risk-free bond prices for European options with same strike and maturity — a no-arbitrage relationship.`,
+     vi:`Đây là ứng dụng trực tiếp của <b>Law of One Price</b> (Lecture 1) vào thị trường quyền chọn: nắm giữ Cổ phiếu + Put = nắm giữ Call + Trái phiếu phi rủi ro (mệnh giá K) — hai danh mục có payoff giống hệt nhau ở mọi kịch bản giá, nên phải có cùng giá hôm nay, nếu không sẽ có arbitrage.`,
+     formula:`C + PV(K) = P + S0
+⇔  C − P = S0 − PV(K) = S0 − K/(1+rf)^T`},
+    {h_en:"Factors Affecting Option Prices & Binomial Model", h_vi:"Các yếu tố ảnh hưởng giá quyền chọn & Mô hình định giá nhị phân",
+     en:`Call value increases with: stock price, volatility, time to maturity, risk-free rate; decreases with strike price. Binomial Model: prices options using a replicating portfolio of stock + risk-free borrowing/lending across discrete up/down states (no-arbitrage pricing).`,
+     vi:`Bẫy: nhiều sinh viên nghĩ độ biến động (volatility) cao làm quyền chọn "rủi ro hơn nên giá thấp hơn" — thực ra <b>ngược lại</b>: vì người mua quyền chọn có rủi ro giới hạn (lỗ tối đa = phí đã trả) nhưng lợi nhuận tiềm năng không giới hạn (call) hoặc rất lớn (put), độ biến động càng cao thì giá trị quyền chọn càng cao. Mô hình Binomial định giá bằng cách xây <b>danh mục tái tạo</b> (replicating portfolio: mua Δ cổ phiếu + vay/cho vay phi rủi ro) có payoff giống hệt quyền chọn ở cả 2 trạng thái (lên/xuống), sau đó áp Luật Một Giá.`,
+     formula:`Δ (hedge ratio) = (Cu − Cd) / (Su − Sd)
+Giá quyền chọn = Δ×S0 − B   (B = số tiền vay phi rủi ro để tái tạo payoff)`}
+  ],
+  examples:[
+    {title:"Ví dụ: Payoff và Profit của Long Call",
+     q:`Nhà đầu tư mua 1 call option, strike K=$50, phí quyền chọn (premium) $4. Tại đáo hạn, giá cổ phiếu ST=$60. Tính Payoff và Profit.`,
+     sol:`Payoff = max(60−50,0) = $10.
+     Profit = Payoff − Premium = 10−4 = <b>$6</b> (bỏ qua giá trị thời gian của premium để đơn giản hoá).`},
+    {title:"Ví dụ: Put-Call Parity — phát hiện arbitrage",
+     q:`Cổ phiếu S0=$100, Call (K=$100,1 năm) giá $12, Put (K=$100,1 năm) giá $7, lãi suất phi rủi ro 5%. Put-Call Parity có bị vi phạm không?`,
+     sol:`Theo Parity: C − P nên bằng S0 − K/(1+rf) = 100 − 100/1.05 = 100−95.24 = 4.76.
+     Thực tế: C−P = 12−7 = 5.00 ≠ 4.76 → <b>Có arbitrage</b> (chênh lệch $0.24). Chiến lược: Call đang tương đối đắt hơn lý thuyết → bán Call, mua Put, mua Cổ phiếu, vay tiền phi rủi ro để tận dụng chênh lệch — dòng tiền ròng hôm nay dương, dòng tiền ròng đáo hạn = 0.`}
+  ],
+  traps:[
+    "Nhầm Payoff và Profit — Payoff không trừ phí quyền chọn đã trả, Profit thì có.",
+    "Nghĩ độ biến động (volatility) cao làm giá quyền chọn THẤP hơn — thực ra volatility cao làm TĂNG giá trị cả Call và Put vì rủi ro giảm giá của người mua quyền chọn bị giới hạn.",
+    "Nhầm chiều Put-Call Parity: công thức đúng là C + PV(K) = P + S0, dễ nhầm dấu hoặc quên chiết khấu K về hiện tại (PV(K), không phải K)."
+  ],
+  quiz:{q:"Điều gì xảy ra với giá của MỘT QUYỀN CHỌN MUA (call option) khi độ biến động (volatility) của cổ phiếu cơ sở TĂNG lên, các yếu tố khác không đổi?",
+        opts:["Giá call giảm","Giá call tăng","Giá call không đổi","Không xác định được"], correct:1,
+        fb:"Volatility cao làm tăng giá trị cả call và put, vì người nắm giữ quyền chọn có lỗ giới hạn (tối đa = phí đã trả) nhưng lợi nhuận tiềm năng lớn hơn khi biến động mạnh — bất đối xứng payoff này làm quyền chọn có giá trị cao hơn khi volatility tăng."}
 }
 ];
 
@@ -517,22 +680,13 @@ function renderAll(){
   main.innerHTML = renderSection(LECTURES[currentIdx], currentIdx);
   attachQuiz(LECTURES[currentIdx].quiz, currentIdx);
   document.getElementById('progressFill').style.width = ((currentIdx+1)/LECTURES.length*100)+'%';
-  
-  // Render MathJax
-  if (window.MathJax) {
-    MathJax.typesetPromise();
-  }
-
   const prev = document.getElementById('prevBtn');
   const next = document.getElementById('nextBtn');
   if(prev) prev.addEventListener('click', ()=>{ currentIdx--; renderAll(); window.scrollTo({top:0,behavior:'smooth'});});
   if(next) next.addEventListener('click', ()=>{ currentIdx++; renderAll(); window.scrollTo({top:0,behavior:'smooth'});});
 }
 
-// Khởi tạo
-document.addEventListener("DOMContentLoaded", () => {
-    renderAll();
-});
+renderAll();
 </script>
 </body>
 </html>
