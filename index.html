@@ -1,60 +1,568 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>OFIN Ledger - Corporate Finance</title>
-    <!-- Thư viện MathJax để hiển thị công thức -->
-    <script>
-      window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] } };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f7f5ef; color: #1b2430; line-height: 1.6; padding: 0; margin: 0; }
-        .masthead { background: #0f5c4c; color: #eef3ef; padding: 20px; border-bottom: 3px double #b8843a; }
-        nav { display: flex; overflow-x: auto; padding: 10px 0; background: #0a3f34; }
-        nav button { background: none; border: none; color: #cfe0d8; padding: 10px; cursor: pointer; white-space: nowrap; }
-        nav button.active { color: #fff; font-weight: bold; border-bottom: 2px solid #b8843a; }
-        main { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border: 1px solid #d8d2c2; }
-        .formula { background: #fbfaf5; padding: 15px; border-left: 5px solid #0f5c4c; margin: 10px 0; font-family: monospace; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OFIN Study Hub — Corporate Finance</title>
+
+<!-- Import Google Fonts để sửa lỗi hiển thị tiếng Việt -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Cấu hình MathJax ĐỂ RENDER CÔNG THỨC LATEX -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+:root {
+  --ink: #1b2430;
+  --paper: #f7f5ef;
+  --ledger: #0f5c4c;
+  --ledger-deep: #0a3f34;
+  --gold: #b8843a;
+  --red-flag: #a83c34;
+  --line: #d8d2c2;
+  --card: #ffffff;
+  --mono: 'JetBrains Mono', 'Consolas', monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Source Serif 4', 'Georgia', serif;
+  line-height: 1.55;
+}
+h1, h2, h3, h4 { 
+  font-family: 'Space Grotesk', 'Arial Narrow', sans-serif; 
+  letter-spacing: .01em; 
+}
+
+/* ===== TOP BAR / LEDGER HEADER ===== */
+.masthead {
+  background: linear-gradient(180deg, var(--ledger-deep), var(--ledger));
+  color: #eef3ef;
+  padding: 28px 5vw 22px;
+  position: sticky; top: 0; z-index: 50;
+  border-bottom: 3px double var(--gold);
+}
+.masthead-row { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.masthead h1 { font-size: 1.5rem; margin: 0; font-weight: 700; }
+.masthead .tag { font-size: .75rem; opacity: .75; font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.ticker {
+  margin-top: 10px; font-family: var(--mono); font-size: .72rem; color: #c9ddd3;
+  white-space: nowrap; overflow: hidden; opacity: .85;
+}
+
+/* ===== NAV — LEDGER TABS ===== */
+nav.lecture-nav {
+  display: flex; gap: 0; overflow-x: auto; margin-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.25);
+  scrollbar-width: thin;
+}
+nav.lecture-nav button {
+  flex: 0 0 auto;
+  background: transparent; border: none; color: #cfe0d8;
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .03em;
+  padding: 10px 14px; cursor: pointer; border-right: 1px solid rgba(255,255,255,.15);
+  white-space: nowrap; transition: .15s;
+}
+nav.lecture-nav button:hover { background: rgba(255,255,255,.08); color: #fff; }
+nav.lecture-nav button.active { background: var(--paper); color: var(--ledger-deep); font-weight: 700; }
+
+/* ===== LAYOUT ===== */
+main { max-width: 920px; margin: 0 auto; padding: 36px 5vw 120px; }
+.section { display: none; }
+.section.active { display: block; animation: fade .35s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.lec-head { border-bottom: 3px solid var(--ink); padding-bottom: 14px; margin-bottom: 24px; }
+.lec-head .eyebrow { font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--gold); }
+.lec-head h2 { font-size: 2rem; margin: .15em 0 .1em; }
+.lec-head .vi-sub { font-size: 1.05rem; color: #555; font-style: italic; }
+
+.block {
+  background: var(--card); border: 1px solid var(--line); border-radius: 2px;
+  padding: 20px 24px; margin-bottom: 18px; box-shadow: 0 1px 0 rgba(0,0,0,.03);
+}
+.block h3 { font-size: 1.15rem; margin: 0 0 10px; color: var(--ledger-deep); border-left: 4px solid var(--gold); padding-left: 10px; }
+.block h3 .en { font-weight: 700; }
+.block h3 .vi { display: block; font-size: .85rem; font-weight: 400; color: #777; font-family: 'Source Serif 4', serif; font-style: italic; margin-top: 2px; padding-left: 0; }
+
+.two-col { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media(min-width:720px){ .two-col { grid-template-columns: 1fr 1fr; } }
+.en-col { border-right: 0; padding-right: 0; }
+@media(min-width:720px){ .en-col { border-right: 1px dashed var(--line); padding-right: 16px; } }
+.en-col .label, .vi-col .label { font-family: var(--mono); font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #999; margin-bottom: 6px; display: block; }
+.vi-col { color: #2a2a2a; }
+
+.formula {
+  background: #fbfaf5; border: 1px solid var(--line); border-left: 4px solid var(--ledger);
+  font-family: var(--mono); padding: 14px 16px; margin: 10px 0; overflow-x: auto; font-size: .95rem;
+}
+
+.example {
+  background: #fdf9ef; border: 1px solid #e6d9b8; border-radius: 2px; padding: 16px 18px; margin: 14px 0;
+}
+.example .ex-title { font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--gold); margin-bottom: 6px; }
+
+details.solution { margin-top: 10px; border-top: 1px dashed var(--line); padding-top: 8px; }
+details.solution summary { cursor: pointer; font-family: var(--mono); font-size: .75rem; color: var(--ledger); text-transform: uppercase; letter-spacing: .06em; }
+details.solution summary::marker { color: var(--gold); }
+
+.trap {
+  background: #fbeceb; border: 1px solid #e3b6b2; border-left: 4px solid var(--red-flag);
+  padding: 14px 16px; margin: 14px 0; border-radius: 2px;
+}
+.trap .trap-title { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--red-flag); font-weight: 700; }
+
+.quiz {
+  background: #eef4f0; border: 1px solid #cfe0d5; padding: 16px 18px; border-radius: 2px; margin: 14px 0;
+}
+.quiz .q { font-weight: 600; margin-bottom: 8px; }
+.quiz .opts { display: flex; flex-direction: column; gap: 6px; }
+.quiz button.opt {
+  text-align: left; padding: 8px 12px; border: 1px solid var(--line); background: #fff; border-radius: 2px;
+  cursor: pointer; font-family: 'Source Serif 4', serif; font-size: .92rem;
+}
+.quiz button.opt:hover { border-color: var(--ledger); }
+.quiz button.opt.correct { background: #d9ecdf; border-color: var(--ledger); }
+.quiz button.opt.wrong { background: #f6dcd9; border-color: var(--red-flag); }
+.quiz .fb { margin-top: 8px; font-size: .88rem; display: none; }
+
+.footer-nav { display: flex; justify-content: space-between; margin-top: 36px; border-top: 1px solid var(--line); padding-top: 16px; }
+.footer-nav button { background: var(--ledger); color: #fff; border: none; padding: 10px 18px; border-radius: 2px; cursor: pointer; font-family: var(--mono); font-size: .75rem; }
+.footer-nav button:disabled { opacity: .3; cursor: default; }
+
+.progress-bar { height: 3px; background: rgba(255,255,255,.15); margin-top: 12px; border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gold); width: 11.1%; transition: width .3s; }
+
+::-webkit-scrollbar { height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--line); }
+</style>
 </head>
 <body>
 
 <header class="masthead">
+  <div class="masthead-row">
     <h1>The OFIN Ledger</h1>
-    <nav id="nav"></nav>
+    <span class="tag">Corporate Finance Study Companion · 9 Lectures</span>
+  </div>
+  <div class="ticker" id="ticker">PV = FV/(1+r)^t · NPV Rule: Chọn dự án có NPV cao nhất · CAPM: E(R)=rf+β(E(Rm)−rf) · Bond price = PV(coupons)+PV(face)</div>
+  <nav class="lecture-nav" id="nav"></nav>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 </header>
 
 <main id="main"></main>
 
 <script>
-// Dữ liệu bao gồm 9 Lectures
+/* ============================================================
+   DỮ LIỆU BÀI GIẢNG 
+   (Đã escape các ký tự \ thành \\ để MathJax hiển thị chuẩn)
+   (Đã chuyển $ tiền tệ thành &#36; để không xung đột LaTeX)
+   ============================================================ */
 const LECTURES = [
-    { id: 1, code: "L01", title: "Intro to Finance", blocks: [{ h: "Giá trị thời gian của tiền", content: "Công thức cơ bản: $$PV = \\frac{FV}{(1+r)^n}$$" }] },
-    { id: 2, code: "L02", title: "Time, Money & Interest", blocks: [{ h: "Annuity & Perpetuity", content: "Giá trị dòng tiền đều: $$PV = C \\times \\frac{1-(1+r)^{-n}}{r}$$" }] },
-    { id: 3, code: "L03", title: "Investment Rules", blocks: [{ h: "NPV & IRR", content: "NPV = PV(Benefits) - PV(Costs)" }] },
-    { id: 4, code: "L04", title: "Capital Budgeting", blocks: [{ h: "FCF Calculation", content: "FCF = EBIT(1-t) + Dep - CapEx - \\Delta NWC" }] },
-    { id: 5, code: "L05", title: "Valuing Bonds", blocks: [{ h: "Bond Pricing", content: "Giá trái phiếu = PV(Coupons) + PV(Face Value)" }] },
-    { id: 6, code: "L06", title: "Valuing Stocks", blocks: [{ h: "Gordon Growth Model", content: "$$P_0 = \\frac{Div_1}{r - g}$$" }] },
-    { id: 7, code: "L07", title: "Risk & Return", blocks: [{ h: "Portfolio Risk", content: "Đa dạng hóa giúp giảm rủi ro riêng biệt." }] },
-    { id: 8, code: "L08", title: "CAPM", blocks: [{ h: "CAPM Model", content: "$$E[R] = r_f + \\beta(E[R_m] - r_f)$$" }] },
-    { id: 9, code: "L09", title: "Derivatives", blocks: [{ h: "Forwards, Futures & Options", content: "Phái sinh là hợp đồng dựa trên tài sản cơ sở. Call option: quyền mua. Put option: quyền bán." }] }
+{
+  id:1, code:"L01", enTitle:"Introduction to Finance & The Time Value of Money",
+  viSub:"Nhập môn Tài chính, Nguyên lý Định giá & Giá trị thời gian của tiền",
+  reading:"Reading: Berk & DeMarzo (CF-B&D), Ch. 3, 4 & 5",
+  blocks:[
+    {
+      h_en:"What is Finance? / Main Areas", h_vi:"Tài chính là gì? Các mảng chính",
+      en:`Finance deals with how individuals, businesses, and institutions allocate scarce resources over time, under uncertainty. Three main areas:
+      <ul><li><b>Capital Markets & Capital Market Theory</b> — pricing of risky assets, interest rate structure.</li>
+      <li><b>Financial Management (Corporate Finance)</b> — investment decisions & financing decisions of a firm.</li>
+      <li><b>Investments</b> — management of individual/institutional portfolios; risk-return trade-off.</li></ul>
+      Value of any financial asset = <b>present value of its expected cash flows</b>.`,
+      vi:`Bản chất: tài chính là khoa học về việc định giá rủi ro và giá trị thời gian của tiền. Ba mảng chính gồm:
+      <ul><li><b>Capital Markets</b>: Nhìn từ góc độ thị trường — giá tài sản rủi ro được hình thành thế nào.</li>
+      <li><b>Corporate Finance</b>: Nhìn từ góc độ doanh nghiệp — nên đầu tư vào đâu (investment decision), lấy tiền từ đâu (financing decision).</li>
+      <li><b>Investments</b>: Nhìn từ góc độ nhà đầu tư cá nhân/tổ chức — xây danh mục, đánh đổi rủi ro–lợi nhuận.</li></ul>
+      Nguyên lý xuyên suốt cả môn: <b>Giá trị của mọi tài sản = PV của dòng tiền kỳ vọng</b>.`
+    },
+    {
+      h_en:"The Valuation Principle & Competitive Markets", h_vi:"Nguyên lý Định giá & Thị trường Cạnh tranh",
+      en:`<b>Valuation Principle:</b> the value of an asset is determined by its competitive market price. Compare costs & benefits using market prices — not personal taste.
+      <br><b>Competitive market:</b> a market where goods can be bought and sold at the same price.`,
+      vi:`Ý nghĩa cốt lõi: khi có giá thị trường cạnh tranh, bạn <b>không cần quan tâm bạn thích hay không thích</b> tài sản đó — chỉ cần so sánh giá trị thị trường của lợi ích và chi phí. Đây là lý do vì sao tài chính doanh nghiệp "khách quan hoá" các quyết định đầu tư.`
+    },
+    {
+      h_en:"Time Value of Money — Core Formulas", h_vi:"Giá trị thời gian của tiền — Công thức cốt lõi",
+      en:`Two reasons &#36;1 today $\\neq$ &#36;1 in the future: (1) time value / opportunity cost (interest), (2) uncertainty.`,
+      vi:`Hai lý do tiền có giá trị theo thời gian: chi phí cơ hội (lãi suất) và sự không chắc chắn trong tương lai (rủi ro).`,
+      formula:`$$FV_{t+1} = PV_t \\times (1+r)$$
+$$PV_t = \\frac{FV_{t+1}}{1+r}$$
+$$\\text{Discount Factor} = \\frac{1}{(1+r)^n}$$`
+    },
+    {
+      h_en:"NPV Decision Rule", h_vi:"Quy tắc quyết định NPV",
+      en:`NPV expresses the value of an investment decision as an amount of cash received today. <b>Rule:</b> among mutually exclusive alternatives, take the one with the highest NPV.`,
+      vi:`NPV là việc quy tất cả dòng tiền về một mốc thời gian hiện tại rồi cộng lại. Chọn dự án có NPV cao nhất chính là tối đa hoá tài sản.`,
+      formula:`$$NPV = PV(\\text{Benefits}) - PV(\\text{Costs})$$`
+    },
+    {
+      h_en:"Inflation: Nominal vs Real Interest Rates", h_vi:"Lạm phát: lãi suất danh nghĩa vs thực",
+      en:`$(1+i_{nom}) = (1+i_{real})(1+e)$ — Fisher equation. Approximation: $i_{nom} \\approx i_{real} + e$.
+      <b>Golden rule:</b> discount real cash flows with real rate; discount nominal cash flows with nominal rate — never mix.`,
+      vi:`Quy tắc vàng: <b>Không được trộn lẫn</b> dòng tiền thực (real) với lãi suất danh nghĩa (nominal), và ngược lại.`,
+      formula:`$$(1 + i_{nom}) = (1 + i_{real}) \\times (1 + e)$$
+$$i_{real} = \\frac{1 + i_{nom}}{1 + e} - 1$$`
+    },
+    {
+      h_en:"Arbitrage & the Law of One Price", h_vi:"Kinh doanh chênh lệch giá & Luật một giá",
+      en:`Law of One Price: equivalent investment opportunities trading in different competitive markets must trade at the same price. If PV of a security's cash flows $\\neq$ its market price $\\Rightarrow$ arbitrage opportunity exists.`,
+      vi:`Nếu giá thị trường $\\neq$ PV lý thuyết, sẽ xuất hiện cơ hội kinh doanh chênh lệch giá (arbitrage). Phương pháp: Mua tài sản đang bị định giá thấp, bán tài sản đang định giá cao để thu lợi nhuận phi rủi ro.`
+    }
+  ],
+  examples:[
+    {title:"PV & Quyết định trả trước hay trả sau",
+     q:`Công ty cần mua máy in 3D giá &#36;2,500 nếu trả ngay. Nhà cung cấp cho lựa chọn trả chậm: trả &#36;2,650 sau 1 năm. Lãi suất phi rủi ro 4%/năm. Nên chọn phương án nào?`,
+     sol:`$$PV = \\frac{\\text{&#36;}2,650}{1.04} = \\text{&#36;}2,548.08$$
+     So với giá trả ngay &#36;2,500 $\\Rightarrow$ $PV$ của khoản trả chậm > giá trả ngay.
+     Vì đây là chi phí (outflow), ta chọn phương án có PV thấp hơn $\\Rightarrow$ <b>trả tiền mặt ngay hôm nay</b>, tiết kiệm được &#36;48.08.`},
+    {title:"So sánh phương án bán doanh nghiệp",
+     q:`Bán ngay &#36;200,000. Hoặc đầu tư thêm &#36;50,000 hôm nay, thu lợi nhuận &#36;90,000 và bán &#36;200,000 sau 1 năm. Lãi suất 6%. Chọn phương án nào?`,
+     sol:`Bán ngay: $NPV = \\text{&#36;}200,000$.<br>
+     Đầu tư thêm: $CF_0 = -\\text{&#36;}50,000$; $CF_1 = \\text{&#36;}290,000$.<br>
+     $$PV(CF_1) = \\frac{\\text{&#36;}290,000}{1.06} = \\text{&#36;}273,584.91$$<br>
+     $$NPV = -\\text{&#36;}50,000 + \\text{&#36;}273,584.91 = \\text{&#36;}223,584.91$$<br>
+     $\\Rightarrow$ Chọn <b>phương án đầu tư thêm</b> vì NPV cao hơn.`}
+  ],
+  traps:[
+    "Nhầm lẫn giữa dòng tiền danh nghĩa (Nominal) và lãi suất thực (Real). Luôn phải đồng nhất tỷ lệ.",
+    "Với bài toán chi phí, phương án tốt nhất là phương án có Hiện giá (PV) chi phí THẤP NHẤT chứ không phải cao nhất."
+  ],
+  quiz:{q:"Một dự án yêu cầu bỏ ra &#36;12.00 triệu hôm nay, trả &#36;5.50 triệu vào năm 1, và thu về &#36;25.00 triệu vào năm 1. Lãi suất phi rủi ro 5%. NPV là bao nhiêu?",
+        opts:["&#36;1.57 triệu","&#36;6.57 triệu","&#36;7.50 triệu","&#36;0 triệu"], correct:1,
+        fb:`Dòng tiền ròng năm 1: $25.00 - 5.50 = 19.50$. $PV = \\frac{19.50}{1.05} = 18.57$. $NPV = -12.00 + 18.57 = 6.57$ triệu.`}
+},
+{
+  id:2, code:"L02", enTitle:"Time, Money and Interest Rates",
+  viSub:"Giá trị thời gian của tiền (nâng cao) & Cấu trúc lãi suất",
+  reading:"Reading: CF-B&D, Ch. 4 & 5",
+  blocks:[
+    {h_en:"Perpetuities & Annuities", h_vi:"Dòng tiền vĩnh viễn & Dòng tiền đều",
+     en:`Perpetuity: constant cash flow $C$ forever. Annuity: constant cash flow $C$ for $N$ periods.`,
+     vi:`Dòng tiền vĩnh viễn (Perpetuity) được định giá tại thời điểm <b>ngay trước</b> dòng tiền đầu tiên.`,
+     formula:`$$PV_{\\text{Perpetuity}} = \\frac{C}{r}$$
+$$PV_{\\text{Growing Perpetuity}} = \\frac{C}{r - g}$$
+$$PV_{\\text{Annuity}} = C \\times \\left[ \\frac{1 - (1+r)^{-N}}{r} \\right]$$
+$$PV_{\\text{Growing Annuity}} = \\frac{C}{r - g} \\times \\left[ 1 - \\left( \\frac{1+g}{1+r} \\right)^N \\right]$$`},
+    {h_en:"Effective Annual Rate (EAR) & Continuous Compounding", h_vi:"Lãi suất hiệu dụng (EAR) & Ghép lãi liên tục",
+     en:`When interest compounds more than once per year, convert the APR to an effective rate (EAR). Continuous compounding uses Euler's number $e$.`,
+     vi:`Lãi suất hiệu dụng (EAR) phản ánh mức lãi suất thực tế nhận được sau 1 năm. Ghép lãi liên tục (Continuous Compounding) sử dụng hằng số $e$.`,
+     formula:`$$EAR = \\left(1 + \\frac{APR}{k}\\right)^k - 1$$
+$$FV_{\\text{continuous}} = PV \\times e^{rT}$$`}
+  ],
+  examples:[
+    {title:"Định giá một Growing Perpetuity",
+     q:`Một quỹ học bổng cần chi &#36;120,000 mỗi năm mãi mãi. Lợi suất thị trường 6%, lạm phát 2.5%. Cần quyên góp bao nhiêu hôm nay?`,
+     sol:`$$PV = \\frac{C}{r - g} = \\frac{\\text{&#36;}120,000}{0.06 - 0.025} = \\frac{\\text{&#36;}120,000}{0.035} = \\text{&#36;}3,428,571.43$$`},
+    {title:"Annuity với khoản thanh toán chót (Balloon)",
+     q:`Bạn vay &#36;15,000 trong 5 năm, lãi suất 8%. Bạn trả đều mỗi năm, nhưng cam kết trả thêm &#36;4,000 vào cuối năm 3. Hãy tính khoản trả đều (PMT) mới?`,
+     sol:`Hiện giá của khoản Balloon: $PV_B = \\frac{\\text{&#36;}4,000}{1.08^3} = \\text{&#36;}3,175.33$.<br>
+     Phần nợ gốc còn lại phải trả bằng Annuity: $15,000 - 3,175.33 = \\text{&#36;}11,824.67$.<br>
+     Tính khoản thanh toán hàng năm: $$\\text{&#36;}11,824.67 = PMT \\times \\left[ \\frac{1 - 1.08^{-5}}{0.08} \\right] \\Rightarrow PMT = \\text{&#36;}2,961.56$$`}
+  ],
+  traps:[
+    "Công thức Perpetuity luôn định giá dòng tiền ở 1 chu kỳ ngay trước dòng tiền đầu tiên.",
+    "Luôn nhớ quy đổi APR sang EAR nếu chu kỳ thanh toán không phải là hàng năm."
+  ],
+  quiz:{q:"Bạn trúng số &#36;680 triệu, được trả trong 30 năm. Khoản đầu tiên là &#36;10.235 triệu, tăng 5%/năm. Lãi suất chiết khấu là 3%. Bạn cần dùng công thức nào?",
+        opts:["Perpetuity (Dòng tiền vĩnh viễn)","Growing Annuity (Dòng tiền đều tăng trưởng)","Annuity thông thường","Không thể tính do g > r"], correct:1,
+        fb:`Đây là một Growing Annuity do có kỳ hạn giới hạn là 30 năm và có tốc độ tăng trưởng 5% mỗi năm.`}
+},
+{
+  id:3, code:"L03", enTitle:"Investment Decision Rules",
+  viSub:"Các quy tắc ra quyết định đầu tư: NPV, IRR, Payback, PI",
+  reading:"Reading: CF-B&D, Ch. 7",
+  blocks:[
+    {h_en:"NPV Investment Rule", h_vi:"Quy tắc NPV",
+     en:`NPV Rule: accept a project if $NPV > 0$. NPV directly measures value created.`,
+     vi:`NPV luôn là quy tắc chuẩn nhất để đưa ra quyết định vì nó tương thích trực tiếp với mục tiêu tối đa hoá của cải.`},
+    {h_en:"IRR Investment Rule", h_vi:"Quy tắc IRR (tỷ suất sinh lời nội bộ)",
+     en:`IRR is the discount rate that sets $NPV = 0$. Pitfalls: multiple IRRs with non-conventional cash flows, cannot compare mutually exclusive projects of different scale.`,
+     vi:`Ba bẫy kinh điển của IRR: (1) Dòng tiền đổi dấu nhiều lần gây ra đa nghiệm, (2) Không phản ánh quy mô dự án, (3) Giả định tái đầu tư phi thực tế.`,
+     formula:`$$NPV = \\sum_{t=0}^T \\frac{CF_t}{(1+IRR)^t} = 0$$`},
+    {h_en:"Profitability Index (PI)", h_vi:"Chỉ số khả năng sinh lời",
+     en:`$PI = \\frac{PV(\\text{future cash flows})}{\\text{Initial Investment}}$. Useful for capital rationing.`,
+     vi:`PI dùng để tối ưu hoá việc lựa chọn danh mục dự án khi ngân sách bị giới hạn (capital rationing).`,
+     formula:`$$PI = \\frac{\\text{PV(Future Cash Flows)}}{\\text{Initial Investment}}$$`}
+  ],
+  examples:[
+    {title:"So sánh Mutually Exclusive bằng NPV & IRR",
+     q:`Dự án Alpha: $NPV = \\text{&#36;}22,230$, $IRR = 14.47\\%$. Dự án Beta: $NPV = \\text{&#36;}28,145$, $IRR = 12.78\\%$. Chọn dự án nào?`,
+     sol:`Dựa theo NPV, chọn Beta vì nó tạo ra giá trị tuyệt đối cao hơn (&#36;28,145 > &#36;22,230), dù có IRR thấp hơn. Không dùng IRR để so sánh các dự án loại trừ lẫn nhau (Mutually Exclusive).`},
+    {title:"Dòng tiền đổi dấu (Non-conventional CF)",
+     q:`Kho phân phối: Đầu tư &#36;12M, thu &#36;1.8M/năm trong 20 năm, sau đó phải chi &#36;150k/năm vĩnh viễn để bảo trì. Có bao nhiêu IRR?`,
+     sol:`Dòng tiền đổi dấu 2 lần (Từ Âm $\\rightarrow$ Dương $\\rightarrow$ Âm). Bài toán sẽ có tối đa 2 nghiệm IRR (cụ thể là $0.61\\%$ và $13.77\\%$). Do đó, quy tắc IRR hoàn toàn vô hiệu.`}
+  ],
+  traps:[
+    "Dùng IRR để xếp hạng dự án Mutually Exclusive là sai lầm phổ biến nhất.",
+    "Bỏ qua dòng tiền sau điểm hoàn vốn khi dùng phương pháp Payback Period."
+  ],
+  quiz:{q:"Khi công ty bị giới hạn vốn (Capital Rationing), công cụ nào là phù hợp nhất để lựa chọn tổ hợp dự án?",
+        opts:["IRR","NPV","Profitability Index (PI)","Payback Period"], correct:2,
+        fb:`PI tối đa hoá mức NPV sinh ra trên mỗi đồng vốn đầu tư ban đầu bị giới hạn.`}
+},
+{
+  id:4, code:"L04", enTitle:"Fundamentals of Capital Budgeting",
+  viSub:"Nền tảng lập ngân sách vốn: FCF & Dự báo Lợi nhuận",
+  reading:"Reading: CF-B&D, Ch. 8",
+  blocks:[
+    {h_en:"From Earnings to Free Cash Flow (FCF)", h_vi:"Từ Lợi nhuận sang Dòng tiền tự do (FCF)",
+     en:`Unlevered Net Income = $EBIT \\times (1 - \\tau_c)$. FCF adjusts for non-cash items and investment needs.`,
+     vi:`Lợi nhuận kế toán chứa khấu hao (không phải dòng tiền thực) nên cần cộng ngược lại. Phải trừ đi CapEx và thay đổi NWC để ra dòng tiền thực tế FCF.`,
+     formula:`$$\\text{Unlevered NI} = EBIT \\times (1 - \\tau_c)$$
+$$FCF = \\text{Unlevered NI} + \\text{Depreciation} - CapEx - \\Delta NWC$$`},
+    {h_en:"Opportunity Costs, Externalities, Sunk Costs", h_vi:"Chi phí cơ hội, Ngoại ứng, Chi phí chìm",
+     en:`Sunk costs are irrelevant. Opportunity costs and Externalities (like product cannibalization) must be included.`,
+     vi:`Sunk cost (chi phí chìm) phải bị loại bỏ. Cannibalization (sản phẩm mới làm giảm doanh thu sản phẩm cũ) phải được tính là khoản trừ vào dòng tiền dự án.`}
+  ],
+  examples:[
+    {title:"Tính OCF và FCF dự án Titan-X",
+     q:`Dự án: Doanh thu &#36;25M, Chi phí &#36;14M, Khấu hao &#36;3M, Thuế 30%, CapEx &#36;0, $\\Delta NWC = \\text{&#36;}500k$. Tính FCF năm 1.`,
+     sol:`$$EBIT = 25 - 14 - 3 = \\text{&#36;}8M$$
+     $$\\text{Unlevered NI} = 8 \\times (1 - 0.30) = \\text{&#36;}5.6M$$
+     $$FCF_1 = 5.6 + 3.0 - 0 - 0.5 = \\text{&#36;}8.10M$$`},
+    {title:"Xử lý Thanh lý tài sản (Salvage Value)",
+     q:`Bán thiết bị với giá thị trường &#36;400k, giá trị sổ sách &#36;500k. Mức thuế 30%. Dòng tiền thanh lý sau thuế (ATSV) là bao nhiêu?`,
+     sol:`Ghi nhận lỗ khi bán: $400k - 500k = -\\text{&#36;}100k$.<br>
+     Tiết kiệm thuế (Tax shield): $-100k \\times 30\\% = -\\text{&#36;}30k$.<br>
+     $$ATSV = 400k - (-30k) = \\text{&#36;}430k$$`}
+  ],
+  traps:[
+    "Quên cộng lại Khấu hao vào FCF sau khi đã trừ đi để tính thuế.",
+    "Đưa Sunk Cost (ví dụ: chi phí khảo sát thị trường đã thanh toán) vào phân tích NPV."
+  ],
+  quiz:{q:"Chi phí nghiên cứu thị trường (Market Analysis) đã thanh toán trước khi xem xét dự án được phân loại là gì?",
+        opts:["Opportunity Cost","Sunk Cost","Externalities","Incremental Cost"], correct:1,
+        fb:`Sunk cost (chi phí chìm) là khoản tiền đã chi trả và không thể thu hồi lại dù dự án có được chấp thuận hay không.`}
+},
+{
+  id:5, code:"L05", enTitle:"Valuing Bonds",
+  viSub:"Định giá Trái phiếu: Giá, lợi suất, cấu trúc kỳ hạn",
+  reading:"Reading: CF-B&D, Ch. 6",
+  blocks:[
+    {h_en:"Bond Cash Flows & Pricing", h_vi:"Định giá & Dòng tiền trái phiếu",
+     en:`Bond Price = PV(coupons as annuity) + PV(face value).`,
+     vi:`Giá trái phiếu là tổng hiện giá của các khoản Coupon (Annuity) cộng với hiện giá của Mệnh giá (Face Value) ở kỳ cuối.`,
+     formula:`$$P = C \\times \\left[ \\frac{1 - (1+YTM)^{-N}}{YTM} \\right] + \\frac{FV}{(1+YTM)^N}$$`},
+    {h_en:"Price and Yield Relationship", h_vi:"Mối quan hệ Giá - Lợi suất",
+     en:`If Coupon Rate > YTM $\\Rightarrow$ price > Face Value (Premium). Convexity shows that prices rise more when yields fall than they drop when yields rise.`,
+     vi:`Lãi suất thị trường (YTM) và giá trái phiếu di chuyển ngược chiều nhau. Mối quan hệ này mang tính lồi (Convexity).`}
+  ],
+  examples:[
+    {title:"Định giá trái phiếu khi YTM thay đổi (Lãi suất bán niên)",
+     q:`Trái phiếu Gamma: Coupon 6%/năm, trả 6 tháng/lần, kỳ hạn 20 năm, mệnh giá &#36;1,000. Nếu YTM giảm từ 6% xuống 4%, giá trái phiếu mới là bao nhiêu?`,
+     sol:`Coupon bán niên: $C = \\frac{60}{2} = \\text{&#36;}30$. Số kỳ $N = 20 \\times 2 = 40$ kỳ. Lãi suất mỗi kỳ $r = \\frac{4\\%}{2} = 2\\%$.<br>
+     $$P = 30 \\times \\left[ \\frac{1 - (1.02)^{-40}}{0.02} \\right] + \\frac{1,000}{1.02^{40}} \\approx \\text{&#36;}1,273.55$$`},
+    {title:"Arbitrage trên đường cong lợi suất Zero-coupon",
+     q:`Giá Zero-coupon 1, 2, 3 năm là &#36;9,650, &#36;9,200, &#36;8,700 (Mệnh giá 10k). Trái phiếu coupon 9%/năm, 3 năm đang bán với giá &#36;11,300. Có cơ hội arbitrage không?`,
+     sol:`Hệ số chiết khấu: $DF_1=0.965$, $DF_2=0.920$, $DF_3=0.870$.<br>
+     Giá lý thuyết: $P_{theo} = 900(0.965) + 900(0.920) + 10,900(0.870) = \\text{&#36;}11,179.50$.<br>
+     Giá thị trường (&#36;11,300) > Giá lý thuyết $\\Rightarrow$ Trái phiếu bị định giá quá cao. Bán khống trái phiếu này và mua các Zero-coupon tương ứng để chốt lời chênh lệch &#36;120.50.`}
+  ],
+  traps:[
+    "Quên chia đôi lãi suất và nhân đôi số kỳ khi làm bài tập về trái phiếu trả lãi bán niên (semiannual).",
+    "Nhầm lẫn giữa Coupon Rate (lãi suất cố định trên hợp đồng) với YTM (lợi suất yêu cầu theo thị trường)."
+  ],
+  quiz:{q:"Nếu một trái phiếu có Coupon Rate < YTM, trái phiếu đó sẽ được giao dịch ở trạng thái nào?",
+        opts:["Premium (Cao hơn mệnh giá)","Par (Bằng mệnh giá)","Discount (Thấp hơn mệnh giá)","Không xác định"], correct:2,
+        fb:`Khi lãi suất Coupon thấp hơn mức lợi suất thị trường đòi hỏi (YTM), nhà đầu tư sẽ chiết khấu giá của nó xuống dưới mệnh giá (Discount) để bù đắp.`}
+},
+{
+  id:6, code:"L06", enTitle:"Valuing Stocks",
+  viSub:"Định giá Cổ phiếu: DDM, Total Payout & DCF",
+  reading:"Reading: CF-B&D, Ch. 9",
+  blocks:[
+    {h_en:"Dividend-Discount Model (DDM)", h_vi:"Mô hình chiết khấu cổ tức",
+     en:`Stock price = PV of all future dividends. Constant Growth: $P_0 = \\frac{Div_1}{r_E - g}$.`,
+     vi:`Giá cổ phiếu bằng hiện giá của chuỗi cổ tức tương lai. Công thức Gordon Growth yêu cầu $r_E > g$.`,
+     formula:`$$P_0 = \\frac{Div_1}{r_E - g}$$
+$$g = \\text{Retention Rate} \\times \\text{RONI}$$`},
+    {h_en:"Total Payout & DCF Models", h_vi:"Tổng chi trả & Chiết khấu dòng tiền (DCF)",
+     en:`Total Payout Model values all of the firm's equity using total dividends and repurchases. DCF values Enterprise Value using WACC.`,
+     vi:`Mô hình DCF chiết khấu FCF bằng WACC để ra Giá trị Doanh nghiệp (Enterprise Value). Sau đó trừ đi Nợ và cộng Tiền mặt để ra Giá trị Vốn hoá (Equity Value).`,
+     formula:`$$EV = \\sum_{t=1}^N \\frac{FCF_t}{(1+r_{wacc})^t} + \\frac{V_N}{(1+r_{wacc})^N}$$
+$$V_N = \\frac{FCF_{N+1}}{r_{wacc} - g_{FCF}}$$`}
+  ],
+  examples:[
+    {title:"DDM với tốc độ tăng trưởng thay đổi (Multi-stage)",
+     q:`Cổ phiếu ART: EPS hiện tại &#36;3.00, tăng 25%/năm trong 3 năm, không trả cổ tức. Sau năm 3, tăng đều 5%/năm và trả 50% EPS làm cổ tức. $r_E = 10\\%$. Tính $P_0$?`,
+     sol:`$EPS_1=3.75$, $EPS_2=4.69$, $EPS_3=5.86$. (Vì Payout = 0 nên $Div = 0$).<br>
+     $EPS_4 = 5.86 \\times 1.05 = 6.15$. $Div_4 = 6.15 \\times 50\\% = 3.08$.<br>
+     Tính Giá trị cuối kỳ tại năm 3: $P_3 = \\frac{Div_4}{r_E - g} = \\frac{3.08}{0.10 - 0.05} = 61.52$.<br>
+     Chiết khấu về hiện tại: $$P_0 = \\frac{P_3}{1.10^3} = \\frac{61.52}{1.331} = \\text{&#36;}46.22$$`},
+    {title:"Định giá bằng Bội số (Multiples) EV/EBITDA",
+     q:`Alpha có Nợ ròng = &#36;150M, EBITDA = &#36;45M, 8 triệu cổ phiếu. Beta có $EV/EBITDA = 8.5$. Định giá 1 cổ phiếu của Alpha?`,
+     sol:`$$EV_{\\text{Alpha}} = 8.5 \\times 45 = \\text{&#36;}382.5M$$
+     $$\\text{Equity}_{\\text{Alpha}} = 382.5 - 150 = \\text{&#36;}232.5M$$
+     $$P_0 = \\frac{232.5}{8} = \\text{&#36;}29.06\\text{/cổ phiếu}$$`}
+  ],
+  traps:[
+    "Sử dụng công thức DDM khi $g \\geq r_E$ sẽ cho ra kết quả âm hoặc vô cực (lỗi toán học).",
+    "Quên trừ Net Debt khi tính Giá trị Cổ phần (Equity Value) từ Enterprise Value."
+  ],
+  quiz:{q:"Nếu công ty cắt giảm tỷ lệ trả cổ tức để giữ lại tái đầu tư, giá cổ phiếu sẽ tăng KHI VÀ CHỈ KHI:",
+        opts:["Tỷ lệ lạm phát giảm","Lợi nhuận trên vốn đầu tư mới (RONI) > chi phí vốn (r_E)","Khấu hao giảm","Không bao giờ tăng"], correct:1,
+        fb:`Việc giữ lại lợi nhuận chỉ tạo ra giá trị gia tăng nếu dự án mới sinh lời cao hơn mức lợi suất kỳ vọng của cổ đông ($RONI > r_E$).`}
+},
+{
+  id:7, code:"L07 & L08", enTitle:"Risk, Return & The CAPM",
+  viSub:"Rủi ro, Lợi nhuận & Mô hình CAPM",
+  reading:"Reading: CF-B&D, Ch. 10 & 11",
+  blocks:[
+    {h_en:"Measuring Risk & Return", h_vi:"Đo lường Rủi ro và Lợi nhuận",
+     en:`Variance/Standard Deviation measure the dispersion of returns. Systematic vs. Idiosyncratic Risk.`,
+     vi:`Rủi ro riêng biệt (Idiosyncratic) có thể được triệt tiêu qua đa dạng hoá danh mục. Rủi ro hệ thống (Systematic) thì không thể tránh khỏi.`,
+     formula:`$$\\sigma^2 = \\sum p_i \\times (R_i - E[R])^2$$`},
+    {h_en:"Portfolio Risk & CAPM", h_vi:"Rủi ro danh mục & Mô hình CAPM",
+     en:`Beta measures sensitivity to systematic risk. CAPM links expected return to Beta and the Market Risk Premium.`,
+     vi:`Beta đo lường mức độ rạy cảm với rủi ro hệ thống. Mô hình CAPM xác định lợi nhuận kỳ vọng dựa trên mức phần bù rủi ro thị trường.`,
+     formula:`$$E[R_i] = r_f + \\beta_i \\times (E[R_m] - r_f)$$`}
+  ],
+  examples:[
+    {title:"Tính rủi ro danh mục có tương quan",
+     q:`Làm thế nào để giảm rủi ro danh mục (Standard Deviation) mà không làm giảm lợi nhuận kỳ vọng?`,
+     sol:`Bằng cách kết hợp các tài sản có hệ số tương quan (Correlation) thấp hoặc âm. Hiệp phương sai (Covariance) âm sẽ bù trừ và làm giảm đáng kể rủi ro tổng thể của danh mục (Đa dạng hóa - Diversification).`},
+    {title:"Tính Expected Return bằng CAPM",
+     q:`Một cổ phiếu có $\\beta = 1.25$. Lãi suất phi rủi ro $r_f = 4\\%$. Phần bù rủi ro thị trường (Market Risk Premium) là 5%. Tính lợi nhuận kỳ vọng?`,
+     sol:`$$E[R] = 4\\% + 1.25 \\times 5\\% = 4\\% + 6.25\\% = 10.25\\%$$`}
+  ],
+  traps:[
+    "Thị trường hiệu quả (Efficient Market) không có nghĩa là 'giá luôn chính xác', mà có nghĩa là 'không thể kiếm lời vượt trội bằng các thông tin đã được công bố'.",
+    "CAPM sử dụng Market Risk Premium, chính là đại lượng $(E[R_m] - r_f)$, do đó phải nhân Beta với chênh lệch này, không phải nhân trực tiếp với $E[R_m]$."
+  ],
+  quiz:{q:"Rủi ro nào sau đây CÓ THỂ bị loại bỏ thông qua việc đa dạng hoá danh mục đầu tư?",
+        opts:["Rủi ro lạm phát","Rủi ro hệ thống (Systematic Risk)","Rủi ro riêng biệt (Idiosyncratic Risk)","Rủi ro thị trường"], correct:2,
+        fb:`Rủi ro riêng biệt (Idiosyncratic Risk) như thay đổi nhân sự quản lý có thể bị triệt tiêu khi bạn sở hữu một danh mục gồm nhiều cổ phiếu khác nhau.`}
+}
 ];
 
+/* ============================================================ RENDER ============================================================ */
 let currentIdx = 0;
 
-function render() {
-    const nav = document.getElementById('nav');
-    nav.innerHTML = LECTURES.map((l, i) => `<button class="${i===currentIdx?'active':''}" onclick="currentIdx=${i}; render();">${l.code}</button>`).join('');
-    
-    const l = LECTURES[currentIdx];
-    const main = document.getElementById('main');
-    main.innerHTML = `<h2>${l.code}: ${l.title}</h2>` + l.blocks.map(b => `<h3>${b.h}</h3><div class="formula">${b.content}</div>`).join('');
-    
-    // Yêu cầu MathJax render lại công thức
-    if(window.MathJax) MathJax.typesetPromise();
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = LECTURES.map((l,i)=>`<button data-i="${i}" class="${i===currentIdx?'active':''}">${l.code} · ${l.enTitle.split(':')[0].split('&')[0].trim().slice(0,26)}</button>`).join('');
+  nav.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ 
+    currentIdx = +b.dataset.i; 
+    renderAll(); 
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
 }
-render();
+
+function blockHTML(b){
+  return `<div class="block">
+    <h3><span class="en">${b.h_en}</span><span class="vi">${b.h_vi}</span></h3>
+    <div class="two-col">
+      <div class="en-col"><span class="label">English (nguyên gốc)</span>${b.en}</div>
+      <div class="vi-col"><span class="label">Giải thích bản chất — Tiếng Việt</span>${b.vi}</div>
+    </div>
+    ${b.formula ? `<div class="formula">${b.formula}</div>` : ''}
+  </div>`;
+}
+
+function exampleHTML(ex,i){
+  return `<div class="example">
+    <div class="ex-title">Ví dụ ${i+1}: ${ex.title}</div>
+    <div><b>Đề bài:</b> ${ex.q}</div>
+    <details class="solution">
+      <summary>Xem đáp án & giải thích chi tiết</summary>
+      <div style="margin-top:8px;">${ex.sol}</div>
+    </details>
+  </div>`;
+}
+
+function trapsHTML(traps){
+  return `<div class="trap">
+    <div class="trap-title">⚠ Lưu ý — Bẫy thi thường gặp</div>
+    <ul>${traps.map(t=>`<li>${t}</li>`).join('')}</ul>
+  </div>`;
+}
+
+function quizHTML(q,idx){
+  const opts = q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('');
+  return `<div class="quiz" id="quiz-${idx}">
+    <div class="q">🧠 Kiểm tra nhanh: ${q.q}</div>
+    <div class="opts">${opts}</div>
+    <div class="fb" id="fb-${idx}"></div>
+  </div>`;
+}
+
+function attachQuiz(q, idx){
+  const box = document.getElementById(`quiz-${idx}`);
+  if(!box) return;
+  box.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i = +btn.dataset.i;
+      box.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+      if(i === q.correct){ 
+        btn.classList.add('correct'); 
+      } else { 
+        btn.classList.add('wrong'); 
+        box.querySelectorAll('.opt')[q.correct].classList.add('correct'); 
+      }
+      const fb = document.getElementById(`fb-${idx}`);
+      fb.style.display = 'block';
+      fb.innerHTML = (i === q.correct ? '✅ Chính xác! ' : '❌ Chưa đúng. ') + q.fb;
+    });
+  });
+}
+
+function renderSection(l, idx){
+  return `<section class="section active">
+    <div class="lec-head">
+      <div class="eyebrow">${l.code} — ${l.reading}</div>
+      <h2>${l.enTitle}</h2>
+      <div class="vi-sub">${l.viSub}</div>
+    </div>
+    ${l.blocks.map(blockHTML).join('')}
+    <div class="block" style="background:#fbfaf5;">
+      <h3><span class="en">Worked Examples</span><span class="vi">Ví dụ minh hoạ có lời giải song ngữ</span></h3>
+      ${l.examples.map(exampleHTML).join('')}
+    </div>
+    ${trapsHTML(l.traps)}
+    ${quizHTML(l.quiz, idx)}
+    <div class="footer-nav">
+      <button id="prevBtn" ${idx===0?'disabled':''}>← Lecture trước</button>
+      <button id="nextBtn" ${idx===LECTURES.length-1?'disabled':''}>Lecture tiếp theo →</button>
+    </div>
+  </section>`;
+}
+
+function renderAll(){
+  renderNav();
+  const main = document.getElementById('main');
+  main.innerHTML = renderSection(LECTURES[currentIdx], currentIdx);
+  attachQuiz(LECTURES[currentIdx].quiz, currentIdx);
+  document.getElementById('progressFill').style.width = ((currentIdx+1)/LECTURES.length*100) + '%';
+  
+  // Render MathJax lại sau khi cập nhật nội dung DOM
+  if (window.MathJax) {
+    MathJax.typesetPromise();
+  }
+
+  const prev = document.getElementById('prevBtn');
+  const next = document.getElementById('nextBtn');
+  if(prev) prev.addEventListener('click', ()=>{ currentIdx--; renderAll(); window.scrollTo({top:0,behavior:'smooth'});});
+  if(next) next.addEventListener('click', ()=>{ currentIdx++; renderAll(); window.scrollTo({top:0,behavior:'smooth'});});
+}
+
+// Khởi chạy khi DOM đã sẵn sàng
+document.addEventListener("DOMContentLoaded", () => {
+    renderAll();
+});
 </script>
 </body>
 </html>
