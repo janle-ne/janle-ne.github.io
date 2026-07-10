@@ -2,21 +2,20 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>OFIN Study Hub — Corporate Finance</title>
-    <!-- MathJax để render công thức toán học -->
+    <title>OFIN Ledger - Corporate Finance</title>
+    <!-- Thư viện MathJax để hiển thị công thức -->
     <script>
       window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] } };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f7f5ef; margin: 0; }
-        .masthead { background: #0f5c4c; color: white; padding: 20px; border-bottom: 3px double #b8843a; }
-        #nav { display: flex; gap: 10px; padding: 10px; background: #0a3f34; overflow-x: auto; }
-        nav button { background: none; border: none; color: #ccc; cursor: pointer; padding: 10px; white-space: nowrap; }
-        nav button.active { color: white; border-bottom: 2px solid #b8843a; font-weight: bold; }
-        main { max-width: 850px; margin: 20px auto; padding: 30px; background: white; border: 1px solid #d8d2c2; }
-        .content-box { border-left: 4px solid #0f5c4c; padding-left: 20px; margin: 20px 0; }
-        code { background: #eee; padding: 2px 4px; border-radius: 4px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f7f5ef; color: #1b2430; line-height: 1.6; padding: 0; margin: 0; }
+        .masthead { background: #0f5c4c; color: #eef3ef; padding: 20px; border-bottom: 3px double #b8843a; }
+        nav { display: flex; overflow-x: auto; padding: 10px 0; background: #0a3f34; }
+        nav button { background: none; border: none; color: #cfe0d8; padding: 10px; cursor: pointer; white-space: nowrap; }
+        nav button.active { color: #fff; font-weight: bold; border-bottom: 2px solid #b8843a; }
+        main { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border: 1px solid #d8d2c2; }
+        .formula { background: #fbfaf5; padding: 15px; border-left: 5px solid #0f5c4c; margin: 10px 0; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -29,22 +28,17 @@
 <main id="main"></main>
 
 <script>
+// Dữ liệu bao gồm 9 Lectures
 const LECTURES = [
-    { code: "L01", title: "Financial Decision Making", content: "NPV = PV(Benefits) - PV(Costs). Quy tắc: Chọn dự án có NPV > 0. Dòng tiền cần được chiết khấu theo rủi ro và thời gian[cite: 1]." },
-    { code: "L02", title: "Time, Money & Interest", content: "Giá trị thời gian: $$PV = \\frac{FV}{(1+r)^n}$$. Sử dụng EAR để so sánh các mức lãi suất có kỳ hạn ghép lãi khác nhau[cite: 1]." },
-    { code: "L03", title: "Investment Decision Rules", content: "NPV là tiêu chuẩn vàng. IRR có nhược điểm khi dự án có nhiều lần đổi dấu dòng tiền. PI dùng cho vốn giới hạn (Capital Rationing)[cite: 1]." },
-    { code: "L04", title: "Fundamentals of Capital Budgeting", content: "FCF = EBIT(1-t) + Dep - CapEx - Delta NWC. Loại bỏ Sunk Cost (chi phí chìm) và tính đến Cannibalization[cite: 1]." },
-    { code: "L05", title: "Valuing Bonds", content: "Giá trái phiếu = PV(Coupons) + PV(Face Value). Giá trái phiếu biến động ngược chiều với YTM[cite: 1]." },
-    { code: "L06", title: "Valuing Stocks", content: "Mô hình Gordon Growth: $$P_0 = \\frac{Div_1}{r - g}$$. DCF chiết khấu FCF bằng WACC để tìm giá trị doanh nghiệp[cite: 1]." },
-    { code: "L07", title: "Risk & Return", content: "Rủi ro riêng biệt (Idiosyncratic) có thể loại bỏ bằng đa dạng hoá. Rủi ro hệ thống (Systematic) được đo bằng Beta[cite: 1]." },
-    { code: "L08", title: "Optimal Portfolio & CAPM", content: "CAPM: $$E[R_i] = r_f + \\beta_i(E[R_m] - r_f)$$. Thị trường định giá rủi ro hệ thống, không định giá rủi ro riêng biệt[cite: 1]." },
-    { code: "L09", title: "Forwards, Futures & Options", content: 
-        "<h3>Giới thiệu phái sinh</h3>" +
-        "<ul><li><b>Forwards:</b> Hợp đồng tự thỏa thuận (OTC), rủi ro đối tác cao[cite: 2].</li>" +
-        "<li><b>Futures:</b> Giao dịch chuẩn hóa, ký quỹ hàng ngày (Marked-to-market) giúp giảm rủi ro đối tác[cite: 2].</li>" +
-        "<li><b>Options:</b> Payoff Call: $$max(S_T - K, 0)$$. Payoff Put: $$max(K - S_T, 0)$$.</li>" +
-        "<li><b>Put-Call Parity:</b> $$C + PV(K) = P + S_0$$[cite: 2].</li></ul>" 
-    }
+    { id: 1, code: "L01", title: "Intro to Finance", blocks: [{ h: "Giá trị thời gian của tiền", content: "Công thức cơ bản: $$PV = \\frac{FV}{(1+r)^n}$$" }] },
+    { id: 2, code: "L02", title: "Time, Money & Interest", blocks: [{ h: "Annuity & Perpetuity", content: "Giá trị dòng tiền đều: $$PV = C \\times \\frac{1-(1+r)^{-n}}{r}$$" }] },
+    { id: 3, code: "L03", title: "Investment Rules", blocks: [{ h: "NPV & IRR", content: "NPV = PV(Benefits) - PV(Costs)" }] },
+    { id: 4, code: "L04", title: "Capital Budgeting", blocks: [{ h: "FCF Calculation", content: "FCF = EBIT(1-t) + Dep - CapEx - \\Delta NWC" }] },
+    { id: 5, code: "L05", title: "Valuing Bonds", blocks: [{ h: "Bond Pricing", content: "Giá trái phiếu = PV(Coupons) + PV(Face Value)" }] },
+    { id: 6, code: "L06", title: "Valuing Stocks", blocks: [{ h: "Gordon Growth Model", content: "$$P_0 = \\frac{Div_1}{r - g}$$" }] },
+    { id: 7, code: "L07", title: "Risk & Return", blocks: [{ h: "Portfolio Risk", content: "Đa dạng hóa giúp giảm rủi ro riêng biệt." }] },
+    { id: 8, code: "L08", title: "CAPM", blocks: [{ h: "CAPM Model", content: "$$E[R] = r_f + \\beta(E[R_m] - r_f)$$" }] },
+    { id: 9, code: "L09", title: "Derivatives", blocks: [{ h: "Forwards, Futures & Options", content: "Phái sinh là hợp đồng dựa trên tài sản cơ sở. Call option: quyền mua. Put option: quyền bán." }] }
 ];
 
 let currentIdx = 0;
@@ -54,9 +48,10 @@ function render() {
     nav.innerHTML = LECTURES.map((l, i) => `<button class="${i===currentIdx?'active':''}" onclick="currentIdx=${i}; render();">${l.code}</button>`).join('');
     
     const l = LECTURES[currentIdx];
-    document.getElementById('main').innerHTML = `<h2>${l.code}: ${l.title}</h2><div class="content-box">${l.content}</div>`;
+    const main = document.getElementById('main');
+    main.innerHTML = `<h2>${l.code}: ${l.title}</h2>` + l.blocks.map(b => `<h3>${b.h}</h3><div class="formula">${b.content}</div>`).join('');
     
-    // Yêu cầu MathJax render công thức trong nội dung vừa thay đổi
+    // Yêu cầu MathJax render lại công thức
     if(window.MathJax) MathJax.typesetPromise();
 }
 render();
